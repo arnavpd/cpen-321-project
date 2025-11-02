@@ -40,4 +40,4 @@ const checkDatabases = async () => {
   }
 };
 
-checkDatabases();
+void checkDatabases();
