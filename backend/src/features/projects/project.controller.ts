@@ -32,7 +32,7 @@ export class ProjectController {
       }
 
       // Generate unique invitation code
-      let invitationCode: string = '';
+      let invitationCode = '';
       let isUnique = false;
       let attempts = 0;
       const maxAttempts = 10;
@@ -177,7 +177,7 @@ export class ProjectController {
         return;
       }
 
-      logger.info(`Project retrieved: ${project._id}, resources count: ${project.resources?.length || 0}`);
+      logger.info(`Project retrieved: ${project._id}, resources count: ${project.resources.length || 0}`);
       if (project.resources && project.resources.length > 0) {
         logger.info(`Resources: ${project.resources.map(r => r.resourceName)}`);
       }
@@ -231,7 +231,7 @@ export class ProjectController {
         return;
       }
 
-      const updateData: any = {};
+      const updateData: unknown = {};
       if (name !== undefined) {
         if (!name || name.trim().length === 0) {
           res.status(400).json({ message: 'Project name cannot be empty' });

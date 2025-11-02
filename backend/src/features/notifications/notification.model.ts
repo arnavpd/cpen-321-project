@@ -89,8 +89,8 @@ export class NotificationModel {
 
   async findByUserId(
     userId: mongoose.Types.ObjectId, 
-    limit: number = 20, 
-    skip: number = 0
+    limit = 20, 
+    skip = 0
   ): Promise<INotification[]> {
     try {
       return await this.notification.find({ userId })
@@ -141,7 +141,7 @@ export class NotificationModel {
     projectId?: mongoose.Types.ObjectId
   ): Promise<INotification[]> {
     try {
-      const query: any = { type };
+      const query: unknown = { type };
       if (userId) query.userId = userId;
       if (projectId) query.projectId = projectId;
 
@@ -201,7 +201,7 @@ export class NotificationModel {
     }
   }
 
-  async deleteOldNotifications(daysOld: number = 30): Promise<number> {
+  async deleteOldNotifications(daysOld = 30): Promise<number> {
     try {
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - daysOld);

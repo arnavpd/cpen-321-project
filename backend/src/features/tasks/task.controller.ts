@@ -76,7 +76,7 @@ export class TaskController {
       }
 
       // Map frontend status values to backend schema values
-      const statusMapping: { [key: string]: 'not_started' | 'in_progress' | 'completed' | 'blocked' | 'backlog' } = {
+      const statusMapping: Record<string, 'not_started' | 'in_progress' | 'completed' | 'blocked' | 'backlog'> = {
         'Not Started': 'not_started',
         'In Progress': 'in_progress',
         'Done': 'completed',
@@ -213,7 +213,7 @@ export class TaskController {
         return;
       }
 
-      const updateData: any = {};
+      const updateData: unknown = {};
       if (title) updateData.title = title;
       if (description !== undefined) updateData.description = description;
       if (status) updateData.status = status;
@@ -325,7 +325,7 @@ export class TaskController {
   /**
    * Helper method: Sync task to Google Calendar for all assignees with calendar enabled
    */
-  private async syncTaskToCalendars(task: any): Promise<void> {
+  private async syncTaskToCalendars(task: unknown): Promise<void> {
     try {
       logger.info('📅 Syncing task to calendars for assignees:', task.assignees);
 
@@ -357,7 +357,7 @@ export class TaskController {
               task.calendarEventId,
               {
                 summary: `${task.title} [${statusDisplay}]`,
-                description: description,
+                description,
                 start: task.deadline,
                 end: task.deadline,
               }
@@ -394,7 +394,7 @@ export class TaskController {
    * Helper method: Format status for display in calendar
    */
   private formatStatusForDisplay(status: string): string {
-    const statusMap: { [key: string]: string } = {
+    const statusMap: Record<string, string> = {
       'not_started': 'Not Started',
       'in_progress': 'In Progress',
       'completed': 'Completed',
@@ -408,7 +408,7 @@ export class TaskController {
   /**
    * Helper method: Build calendar event description with status and task details
    */
-  private buildCalendarDescription(task: any, statusDisplay: string): string {
+  private buildCalendarDescription(task: unknown, statusDisplay: string): string {
     const parts: string[] = [];
     
     // Add status
@@ -435,7 +435,7 @@ export class TaskController {
   /**
    * Helper method: Remove task from Google Calendar for all assignees
    */
-  private async removeTaskFromCalendars(task: any): Promise<void> {
+  private async removeTaskFromCalendars(task: unknown): Promise<void> {
     try {
       if (!task.calendarEventId) {
         return;
@@ -446,7 +446,7 @@ export class TaskController {
       for (const assigneeId of task.assignees) {
         const assignee = await userModel.findById(assigneeId);
         
-        if (!assignee || !assignee.calendarRefreshToken) {
+        if (!assignee?.calendarRefreshToken) {
           continue;
         }
 

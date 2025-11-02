@@ -110,14 +110,14 @@ export class CalendarService {
 
       const event = {
         summary: eventData.summary,
-        description: eventData.description || '',
+        description: eventData.description ?? '',
         start: {
           date: formatDateOnly(eventData.start), // Use 'date' instead of 'dateTime' for all-day events
         },
         end: {
           date: formatDateOnly(new Date(endTime.getTime() + 24 * 60 * 60 * 1000)), // Add 1 day for Google Calendar all-day event format
         },
-        reminders: eventData.reminders || {
+        reminders: eventData.reminders ?? {
           useDefault: false,
           overrides: [
             { method: 'email', minutes: 24 * 60 }, // 1 day before
@@ -188,7 +188,7 @@ export class CalendarService {
 
       await calendar.events.update({
         calendarId: 'primary',
-        eventId: eventId,
+        eventId,
         requestBody: event,
       });
 

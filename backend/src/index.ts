@@ -9,7 +9,7 @@ import { connectDB } from './database/database';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.middleware';
 import router from './routes/routes';
 import path from 'path';
-import { ChatWebSocketService } from './features/chat/chat-websocket.service';
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
@@ -33,7 +33,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('*', notFoundHandler);
 app.use(errorHandler);
 
-connectDB();
+void connectDB();
 httpServer.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });

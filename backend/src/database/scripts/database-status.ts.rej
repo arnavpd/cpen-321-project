@@ -1,0 +1,5 @@
+--- backend/src/database/scripts/database-status.ts
++++ backend/src/database/scripts/database-status.ts
+@@ -43 +43 @@
+-checkDatabases();
++void checkDatabases();

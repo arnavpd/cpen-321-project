@@ -130,7 +130,7 @@ export class ProjectInvitationModel {
 
   async findByStatus(status: string, projectId?: mongoose.Types.ObjectId): Promise<IProjectInvitation[]> {
     try {
-      const query: any = { status };
+      const query: unknown = { status };
       if (projectId) query.projectId = projectId;
 
       return await this.projectInvitation.find(query)
@@ -145,7 +145,7 @@ export class ProjectInvitationModel {
 
   async findPendingInvitations(projectId?: mongoose.Types.ObjectId): Promise<IProjectInvitation[]> {
     try {
-      const query: any = { 
+      const query: unknown = { 
         status: 'pending',
         expiresAt: { $gt: new Date() }
       };
@@ -243,7 +243,7 @@ export class ProjectInvitationModel {
     projectId: mongoose.Types.ObjectId,
     invitedEmail: string,
     invitedBy: mongoose.Types.ObjectId,
-    expiresInDays: number = 7
+    expiresInDays = 7
   ): Promise<IProjectInvitation> {
     try {
       const invitationCode = await this.generateInvitationCode();

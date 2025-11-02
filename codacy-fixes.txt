@@ -1,0 +1,306 @@
+diff --git a/backend/src/features/users/user.types.ts b/backend/src/features/users/user.types.ts
+--- a/backend/src/features/users/user.types.ts
++++ b/backend/src/features/users/user.types.ts
+@@ -49,1 +49,1 @@
+-export type GetProfileResponse = {
++export interface GetProfileResponse {
+@@ -60,1 +60,1 @@
+-export type GoogleUserInfo = {
++export interface GoogleUserInfo {
+diff --git a/backend/src/features/chat/chatMessage.model.ts b/backend/src/features/chat/chatMessage.model.ts
+--- a/backend/src/features/chat/chatMessage.model.ts
++++ b/backend/src/features/chat/chatMessage.model.ts
+@@ -87,1 +87,1 @@
+-    limit: number = 50, 
++    limit = 50, 
+@@ -88,1 +88,1 @@
+-    skip: number = 0
++    skip = 0
+@@ -124,1 +124,1 @@
+-  async findBySenderId(senderId: mongoose.Types.ObjectId, limit: number = 20): Promise<IChatMessage[]> {
++  async findBySenderId(senderId: mongoose.Types.ObjectId, limit = 20): Promise<IChatMessage[]> {
+@@ -139,1 +139,1 @@
+-  async findRecentMessages(projectId: mongoose.Types.ObjectId, hours: number = 24): Promise<IChatMessage[]> {
++  async findRecentMessages(projectId: mongoose.Types.ObjectId, hours = 24): Promise<IChatMessage[]> {
+diff --git a/backend/src/database/show-database.ts b/backend/src/database/show-database.ts
+--- a/backend/src/database/show-database.ts
++++ b/backend/src/database/show-database.ts
+@@ -10,1 +10,1 @@
+-    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/cpen321-project';
++    const uri = process.env.MONGODB_URI ?? 'mongodb://localhost:27017/cpen321-project';
+@@ -104,1 +104,1 @@
+-    .catch((error) => {
++    .catch((error: unknown) => {
+diff --git a/backend/src/features/tasks/task.model.ts b/backend/src/features/tasks/task.model.ts
+--- a/backend/src/features/tasks/task.model.ts
++++ b/backend/src/features/tasks/task.model.ts
+@@ -142,1 +142,1 @@
+-      const query: any = { status };
++      const query: unknown = { status };
+@@ -158,1 +158,1 @@
+-  async findUpcomingDeadlines(days: number = 7): Promise<ITask[]> {
++  async findUpcomingDeadlines(days = 7): Promise<ITask[]> {
+diff --git a/backend/src/features/expenses/expense.model.ts b/backend/src/features/expenses/expense.model.ts
+--- a/backend/src/features/expenses/expense.model.ts
++++ b/backend/src/features/expenses/expense.model.ts
+@@ -147,1 +147,1 @@
+-      const query: any = { status };
++      const query: unknown = { status };
+@@ -210,1 +210,1 @@
+-      const query: any = { 'splits.userId': userId, 'splits.isPaid': false };
++      const query: unknown = { 'splits.userId': userId, 'splits.isPaid': false };
+@@ -218,1 +218,1 @@
+-        return total + (userSplit?.amount || 0);
++        return total + (userSplit?.amount ?? 0);
+diff --git a/backend/src/features/chat/chat-websocket.service.ts b/backend/src/features/chat/chat-websocket.service.ts
+--- a/backend/src/features/chat/chat-websocket.service.ts
++++ b/backend/src/features/chat/chat-websocket.service.ts
+@@ -111,1 +111,1 @@
+-  public async broadcastNewMessage(projectId: string, message: any) {
++  public async broadcastNewMessage(projectId: string, message: unknown) {
+diff --git a/backend/src/features/notifications/notification.model.ts b/backend/src/features/notifications/notification.model.ts
+--- a/backend/src/features/notifications/notification.model.ts
++++ b/backend/src/features/notifications/notification.model.ts
+@@ -92,1 +92,1 @@
+-    limit: number = 20, 
++    limit = 20, 
+@@ -93,1 +93,1 @@
+-    skip: number = 0
++    skip = 0
+@@ -144,1 +144,1 @@
+-      const query: any = { type };
++      const query: unknown = { type };
+@@ -204,1 +204,1 @@
+-  async deleteOldNotifications(daysOld: number = 30): Promise<number> {
++  async deleteOldNotifications(daysOld = 30): Promise<number> {
+diff --git a/backend/src/index.ts b/backend/src/index.ts
+--- a/backend/src/index.ts
++++ b/backend/src/index.ts
+@@ -6,1 +6,1 @@
+-import express from 'express';
++import express from 'express';
+@@ -7,1 +7,1 @@
+-import http from 'http';
++import http from 'http';
+@@ -8,1 +8,1 @@
+-import { connectDB } from './database/database';
++import { connectDB } from './database/database';
+@@ -9,1 +9,1 @@
+-import { errorHandler, notFoundHandler } from './middleware/errorHandler.middleware';
++import { errorHandler, notFoundHandler } from './middleware/errorHandler.middleware';
+@@ -10,1 +10,1 @@
+-import router from './routes/routes';
++import router from './routes/routes';
+@@ -11,1 +11,1 @@
+-import path from 'path';
++import path from 'path';
+@@ -12,1 +12,1 @@
+-import { ChatWebSocketService } from './features/chat/chat-websocket.service';
++dotenv.config();
+@@ -36,1 +36,1 @@
+-connectDB();
++void connectDB();
+diff --git a/backend/src/database/scripts/database-status.ts b/backend/src/database/scripts/database-status.ts
+--- a/backend/src/database/scripts/database-status.ts
++++ b/backend/src/database/scripts/database-status.ts
+@@ -43,1 +43,1 @@
+-checkDatabases();
++void checkDatabases();
+diff --git a/backend/src/database/scripts/database-seed.ts b/backend/src/database/scripts/database-seed.ts
+--- a/backend/src/database/scripts/database-seed.ts
++++ b/backend/src/database/scripts/database-seed.ts
+@@ -10,1 +10,1 @@
+-    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/cpen321-project';
++    const uri = process.env.MONGODB_URI ?? 'mongodb://localhost:27017/cpen321-project';
+@@ -41,1 +41,1 @@
+-    let userIds: any[] = [];
++    let userIds: unknown[] = [];
+@@ -264,1 +264,1 @@
+-    .catch((error) => {
++    .catch((error: unknown) => {
+diff --git a/backend/src/features/projects/project-status.ts b/backend/src/features/projects/project-status.ts
+--- a/backend/src/features/projects/project-status.ts
++++ b/backend/src/features/projects/project-status.ts
+@@ -12,1 +12,1 @@
+-    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/cpen321-project';
++    const uri = process.env.MONGODB_URI ?? 'mongodb://localhost:27017/cpen321-project';
+@@ -27,1 +27,1 @@
+-    projects.forEach((project: any, index: number) => {
++    projects.forEach((project: unknown, index: number) => {
+@@ -55,1 +55,1 @@
+-    .catch((error) => {
++    .catch((error: unknown) => {
+diff --git a/backend/src/features/expenses/expense.controller.ts b/backend/src/features/expenses/expense.controller.ts
+--- a/backend/src/features/expenses/expense.controller.ts
++++ b/backend/src/features/expenses/expense.controller.ts
+@@ -36,1 +36,1 @@
+-        description: description,
++        description,
+@@ -37,1 +37,1 @@
+-        amount: amount,
++        amount,
+@@ -39,1 +39,1 @@
+-        splits: splits,
++        splits,
+@@ -54,1 +54,1 @@
+-          amountPerPerson: amountPerPerson,
++          amountPerPerson,
+@@ -90,1 +90,1 @@
+-              ? (expense.createdBy as any)._id.toString()
++              ? (expense.createdBy as unknown)._id.toString()
+@@ -91,1 +91,1 @@
+-              : (expense.createdBy as any).toString();
++              : (expense.createdBy as unknown).toString();
+@@ -96,1 +96,1 @@
+-                ? (s.userId as any)._id.toString()
++                ? (s.userId as unknown)._id.toString()
+@@ -97,1 +97,1 @@
+-                : (s.userId as any).toString();
++                : (s.userId as unknown).toString();
+@@ -102,1 +102,1 @@
+-              description: expense.description || expense.title,
++              description: expense.description ?? expense.title,
+diff --git a/backend/src/features/invitations/invitation.model.ts b/backend/src/features/invitations/invitation.model.ts
+--- a/backend/src/features/invitations/invitation.model.ts
++++ b/backend/src/features/invitations/invitation.model.ts
+@@ -133,1 +133,1 @@
+-      const query: any = { status };
++      const query: unknown = { status };
+@@ -148,1 +148,1 @@
+-      const query: any = { 
++      const query: unknown = { 
+@@ -246,1 +246,1 @@
+-    expiresInDays: number = 7
++    expiresInDays = 7
+diff --git a/backend/src/features/media/media.types.ts b/backend/src/features/media/media.types.ts
+--- a/backend/src/features/media/media.types.ts
++++ b/backend/src/features/media/media.types.ts
+@@ -3,1 +3,1 @@
+-export type UploadImageRequest = {
++export interface UploadImageRequest {
+diff --git a/backend/src/database/scripts/database-reset.ts b/backend/src/database/scripts/database-reset.ts
+--- a/backend/src/database/scripts/database-reset.ts
++++ b/backend/src/database/scripts/database-reset.ts
+@@ -10,1 +10,1 @@
+-    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/cpen321-project';
++    const uri = process.env.MONGODB_URI ?? 'mongodb://localhost:27017/cpen321-project';
+@@ -351,1 +351,1 @@
+-    .catch((error) => {
++    .catch((error: unknown) => {
+diff --git a/backend/src/middleware/auth.middleware.ts b/backend/src/middleware/auth.middleware.ts
+--- a/backend/src/middleware/auth.middleware.ts
++++ b/backend/src/middleware/auth.middleware.ts
+@@ -27,1 +27,1 @@
+-    if (!decoded || !decoded.id) {
++    if (!decoded?.id) {
+@@ -45,1 +45,1 @@
+-    (req as any).user = user;
++    (req as unknown).user = user;
+diff --git a/backend/src/features/projects/project.controller.ts b/backend/src/features/projects/project.controller.ts
+--- a/backend/src/features/projects/project.controller.ts
++++ b/backend/src/features/projects/project.controller.ts
+@@ -35,1 +35,1 @@
+-      let invitationCode: string = '';
++      let invitationCode = '';
+@@ -180,1 +180,1 @@
+-      logger.info(`Project retrieved: ${project._id}, resources count: ${project.resources?.length || 0}`);
++      logger.info(`Project retrieved: ${project._id}, resources count: ${project.resources.length || 0}`);
+@@ -234,1 +234,1 @@
+-      const updateData: any = {};
++      const updateData: unknown = {};
+diff --git a/backend/src/database/database-init.ts b/backend/src/database/database-init.ts
+--- a/backend/src/database/database-init.ts
++++ b/backend/src/database/database-init.ts
+@@ -10,1 +10,1 @@
+-    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/cpen321-project';
++    const uri = process.env.MONGODB_URI ?? 'mongodb://localhost:27017/cpen321-project';
+@@ -18,1 +18,1 @@
+-import { userModel } from './user.model';
++import { userModel } from './user.model';
+@@ -19,1 +19,1 @@
+-import { projectModel } from './project.model';
++import { projectModel } from './project.model';
+@@ -20,1 +20,1 @@
+-import { taskModel } from './task.model';
++import { taskModel } from './task.model';
+@@ -21,1 +21,1 @@
+-import { expenseModel } from './expense.model';
++import { expenseModel } from './expense.model';
+@@ -22,1 +22,1 @@
+-import { chatMessageModel } from './chatMessage.model';
++import { chatMessageModel } from './chatMessage.model';
+@@ -23,1 +23,1 @@
+-import { notificationModel } from './notification.model';
++import { notificationModel } from './notification.model';
+@@ -24,1 +24,1 @@
+-import { projectInvitationModel } from './projectInvitation.model';
++};
+@@ -74,1 +74,1 @@
+-const createAdditionalIndexes = async (db: any): Promise<void> => {
++const createAdditionalIndexes = async (db: unknown): Promise<void> => {
+@@ -156,1 +156,1 @@
+-export const getDatabaseStats = async (): Promise<any> => {
++export const getDatabaseStats = async (): Promise<unknown> => {
+@@ -173,1 +173,1 @@
+-    const stats: any = {};
++    const stats: unknown = {};
+@@ -184,1 +184,1 @@
+-          indexes: indexes.map((idx: any) => idx.name)
++          indexes: indexes.map((idx: unknown) => idx.name)
+@@ -207,1 +207,1 @@
+-    .catch((error) => {
++    .catch((error: unknown) => {
+diff --git a/backend/src/features/calendar/calendar.service.ts b/backend/src/features/calendar/calendar.service.ts
+--- a/backend/src/features/calendar/calendar.service.ts
++++ b/backend/src/features/calendar/calendar.service.ts
+@@ -113,1 +113,1 @@
+-        description: eventData.description || '',
++        description: eventData.description ?? '',
+@@ -120,1 +120,1 @@
+-        reminders: eventData.reminders || {
++        reminders: eventData.reminders ?? {
+@@ -191,1 +191,1 @@
+-        eventId: eventId,
++        eventId,
+diff --git a/backend/src/features/tasks/task.controller.ts b/backend/src/features/tasks/task.controller.ts
+--- a/backend/src/features/tasks/task.controller.ts
++++ b/backend/src/features/tasks/task.controller.ts
+@@ -79,1 +79,1 @@
+-      const statusMapping: { [key: string]: 'not_started' | 'in_progress' | 'completed' | 'blocked' | 'backlog' } = {
++      const statusMapping: Record<string, 'not_started' | 'in_progress' | 'completed' | 'blocked' | 'backlog'> = {
+@@ -216,1 +216,1 @@
+-      const updateData: any = {};
++      const updateData: unknown = {};
+@@ -328,1 +328,1 @@
+-  private async syncTaskToCalendars(task: any): Promise<void> {
++  private async syncTaskToCalendars(task: unknown): Promise<void> {
+@@ -360,1 +360,1 @@
+-                description: description,
++                description,
+@@ -397,1 +397,1 @@
+-    const statusMap: { [key: string]: string } = {
++    const statusMap: Record<string, string> = {
+@@ -411,1 +411,1 @@
+-  private buildCalendarDescription(task: any, statusDisplay: string): string {
++  private buildCalendarDescription(task: unknown, statusDisplay: string): string {
+@@ -438,1 +438,1 @@
+-  private async removeTaskFromCalendars(task: any): Promise<void> {
++  private async removeTaskFromCalendars(task: unknown): Promise<void> {
+@@ -449,1 +449,1 @@
+-        if (!assignee || !assignee.calendarRefreshToken) {
++        if (!assignee?.calendarRefreshToken) {
+diff --git a/backend/src/features/auth/auth.types.ts b/backend/src/features/auth/auth.types.ts
+--- a/backend/src/features/auth/auth.types.ts
++++ b/backend/src/features/auth/auth.types.ts
+@@ -15,1 +15,1 @@
+-export type AuthenticateUserResponse = {
++export interface AuthenticateUserResponse {
+@@ -22,1 +22,1 @@
+-export type AuthResult = {
++export interface AuthResult {
+diff --git a/backend/src/database/database.ts b/backend/src/database/database.ts
+--- a/backend/src/database/database.ts
++++ b/backend/src/database/database.ts
+@@ -5,1 +5,1 @@
+-    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/cpen321-project';
++    const uri = process.env.MONGODB_URI ?? 'mongodb://localhost:27017/cpen321-project';

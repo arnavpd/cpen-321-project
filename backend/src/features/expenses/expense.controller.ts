@@ -33,10 +33,10 @@ export class ExpenseController {
       const expense = await expenseModel.create({
         projectId: new mongoose.Types.ObjectId(projectId),
         title: description,
-        description: description,
-        amount: amount,
+        description,
+        amount,
         createdBy: new mongoose.Types.ObjectId(paidBy),
-        splits: splits,
+        splits,
         status: 'pending',
       });
 
@@ -51,7 +51,7 @@ export class ExpenseController {
           amount: expense.amount,
           paidBy: expense.createdBy,
           splitBetween: expense.splits.map(s => s.userId),
-          amountPerPerson: amountPerPerson,
+          amountPerPerson,
           createdAt: expense.createdAt,
           status: expense.status,
         }
@@ -87,19 +87,19 @@ export class ExpenseController {
           data: expenses.map(expense => {
             // Handle populated createdBy (could be ObjectId or populated User object)
             const paidByUserId = typeof expense.createdBy === 'object' && expense.createdBy !== null && '_id' in expense.createdBy
-              ? (expense.createdBy as any)._id.toString()
-              : (expense.createdBy as any).toString();
+              ? (expense.createdBy as unknown)._id.toString()
+              : (expense.createdBy as unknown).toString();
 
             // Handle populated splits.userId (could be ObjectId or populated User object)
             const splitBetweenUserIds = expense.splits.map(s => {
               return typeof s.userId === 'object' && s.userId !== null && '_id' in s.userId
-                ? (s.userId as any)._id.toString()
-                : (s.userId as any).toString();
+                ? (s.userId as unknown)._id.toString()
+                : (s.userId as unknown).toString();
             });
 
             return {
               id: expense._id.toString(),
-              description: expense.description || expense.title,
+              description: expense.description ?? expense.title,
               amount: expense.amount,
               paidBy: paidByUserId,
               splitBetween: splitBetweenUserIds,

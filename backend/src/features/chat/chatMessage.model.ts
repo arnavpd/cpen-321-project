@@ -84,8 +84,8 @@ export class ChatMessageModel {
 
   async findByProjectId(
     projectId: mongoose.Types.ObjectId, 
-    limit: number = 50, 
-    skip: number = 0
+    limit = 50, 
+    skip = 0
   ): Promise<IChatMessage[]> {
     try {
       return await this.chatMessage.find({ 
@@ -121,7 +121,7 @@ export class ChatMessageModel {
     }
   }
 
-  async findBySenderId(senderId: mongoose.Types.ObjectId, limit: number = 20): Promise<IChatMessage[]> {
+  async findBySenderId(senderId: mongoose.Types.ObjectId, limit = 20): Promise<IChatMessage[]> {
     try {
       return await this.chatMessage.find({ 
         senderId, 
@@ -136,7 +136,7 @@ export class ChatMessageModel {
     }
   }
 
-  async findRecentMessages(projectId: mongoose.Types.ObjectId, hours: number = 24): Promise<IChatMessage[]> {
+  async findRecentMessages(projectId: mongoose.Types.ObjectId, hours = 24): Promise<IChatMessage[]> {
     try {
       const since = new Date();
       since.setHours(since.getHours() - hours);

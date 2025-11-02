@@ -7,7 +7,7 @@ dotenv.config();
 // Hardcode connection for seeding
 const connectDB = async (): Promise<void> => {
   try {
-    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/cpen321-project';
+    const uri = process.env.MONGODB_URI ?? 'mongodb://localhost:27017/cpen321-project';
     await mongoose.connect(uri);
     console.log(`✅ MongoDB connected successfully to ${uri}`);
   } catch (error) {
@@ -348,7 +348,7 @@ if (require.main === module) {
       console.log('\n🎉 Force reseed script completed!');
       process.exit(0);
     })
-    .catch((error) => {
+    .catch((error: unknown) => {
       console.error('💥 Force reseed script failed:', error);
       process.exit(1);
     });

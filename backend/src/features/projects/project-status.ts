@@ -9,7 +9,7 @@ const checkProjects = async (): Promise<void> => {
     console.log('🔍 Checking projects in database...');
     
     // Connect to MongoDB
-    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/cpen321-project';
+    const uri = process.env.MONGODB_URI ?? 'mongodb://localhost:27017/cpen321-project';
     await mongoose.connect(uri);
     console.log(`✅ MongoDB connected successfully to ${uri}`);
 
@@ -24,7 +24,7 @@ const checkProjects = async (): Promise<void> => {
     const projects = await projectsCollection.find({}).toArray();
     console.log(`\n📊 Found ${projects.length} projects:\n`);
 
-    projects.forEach((project: any, index: number) => {
+    projects.forEach((project: unknown, index: number) => {
       console.log(`Project ${index + 1}:`);
       console.log(`  ID: ${project._id}`);
       console.log(`  Name: ${project.name}`);
@@ -52,7 +52,7 @@ if (require.main === module) {
       console.log('🎉 Project check completed!');
       process.exit(0);
     })
-    .catch((error) => {
+    .catch((error: unknown) => {
       console.error('💥 Project check failed:', error);
       process.exit(1);
     });

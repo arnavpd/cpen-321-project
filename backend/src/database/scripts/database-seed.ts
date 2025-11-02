@@ -7,7 +7,7 @@ dotenv.config();
 // Hardcode connection for seeding
 const connectDB = async (): Promise<void> => {
   try {
-    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/cpen321-project';
+    const uri = process.env.MONGODB_URI ?? 'mongodb://localhost:27017/cpen321-project';
     await mongoose.connect(uri);
     console.log(`✅ MongoDB connected successfully to ${uri}`);
   } catch (error) {
@@ -38,7 +38,7 @@ const seedDatabase = async (): Promise<void> => {
     const usersCollection = db.collection('users');
     const existingUsers = await usersCollection.find({}).limit(3).toArray();
     
-    let userIds: any[] = [];
+    let userIds: unknown[] = [];
     
     if (existingUsers.length > 0) {
       console.log(`👥 Found ${existingUsers.length} existing users - using them for sample data`);
@@ -261,7 +261,7 @@ if (require.main === module) {
       console.log('🎉 Database seeding script completed!');
       process.exit(0);
     })
-    .catch((error) => {
+    .catch((error: unknown) => {
       console.error('💥 Database seeding script failed:', error);
       process.exit(1);
     });

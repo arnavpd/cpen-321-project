@@ -144,7 +144,7 @@ export class ExpenseModel {
 
   async findByStatus(status: string, projectId?: mongoose.Types.ObjectId): Promise<IExpense[]> {
     try {
-      const query: any = { status };
+      const query: unknown = { status };
       if (projectId) {
         query.projectId = projectId;
       }
@@ -207,7 +207,7 @@ export class ExpenseModel {
 
   async calculateTotalOwed(userId: mongoose.Types.ObjectId, projectId?: mongoose.Types.ObjectId): Promise<number> {
     try {
-      const query: any = { 'splits.userId': userId, 'splits.isPaid': false };
+      const query: unknown = { 'splits.userId': userId, 'splits.isPaid': false };
       if (projectId) {
         query.projectId = projectId;
       }
@@ -215,7 +215,7 @@ export class ExpenseModel {
       const expenses = await this.expense.find(query);
       return expenses.reduce((total, expense) => {
         const userSplit = expense.splits.find(split => split.userId.equals(userId));
-        return total + (userSplit?.amount || 0);
+        return total + (userSplit?.amount ?? 0);
       }, 0);
     } catch (error) {
       console.error('Error calculating total owed:', error);

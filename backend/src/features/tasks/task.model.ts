@@ -139,7 +139,7 @@ export class TaskModel {
 
   async findByStatus(status: string, projectId?: mongoose.Types.ObjectId): Promise<ITask[]> {
     try {
-      const query: any = { status };
+      const query: unknown = { status };
       if (projectId) {
         query.projectId = projectId;
       }
@@ -155,7 +155,7 @@ export class TaskModel {
     }
   }
 
-  async findUpcomingDeadlines(days: number = 7): Promise<ITask[]> {
+  async findUpcomingDeadlines(days = 7): Promise<ITask[]> {
     try {
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + days);

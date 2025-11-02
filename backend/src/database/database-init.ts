@@ -7,7 +7,7 @@ dotenv.config();
 // Hardcode connection for initialization
 const connectDB = async (): Promise<void> => {
   try {
-    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/cpen321-project';
+    const uri = process.env.MONGODB_URI ?? 'mongodb://localhost:27017/cpen321-project';
     await mongoose.connect(uri);
     console.log(`✅ MongoDB connected successfully to ${uri}`);
   } catch (error) {
@@ -21,7 +21,7 @@ import { taskModel } from './task.model';
 import { expenseModel } from './expense.model';
 import { chatMessageModel } from './chatMessage.model';
 import { notificationModel } from './notification.model';
-import { projectInvitationModel } from './projectInvitation.model';
+};
 
 /**
  * Database initialization script
@@ -71,7 +71,7 @@ export const initializeDatabase = async (): Promise<void> => {
 /**
  * Create additional indexes for better query performance
  */
-const createAdditionalIndexes = async (db: any): Promise<void> => {
+const createAdditionalIndexes = async (db: unknown): Promise<void> => {
   try {
     console.log('🔍 Creating additional indexes...');
 
@@ -153,7 +153,7 @@ export const cleanupExpiredData = async (): Promise<void> => {
 /**
  * Get database statistics
  */
-export const getDatabaseStats = async (): Promise<any> => {
+export const getDatabaseStats = async (): Promise<unknown> => {
   try {
     const db = mongoose.connection.db;
     if (!db) {
@@ -170,7 +170,7 @@ export const getDatabaseStats = async (): Promise<any> => {
       'projectinvitations'
     ];
 
-    const stats: any = {};
+    const stats: unknown = {};
 
     for (const collectionName of collections) {
       try {
@@ -181,7 +181,7 @@ export const getDatabaseStats = async (): Promise<any> => {
         stats[collectionName] = {
           documentCount: count,
           indexCount: indexes.length,
-          indexes: indexes.map((idx: any) => idx.name)
+          indexes: indexes.map((idx: unknown) => idx.name)
         };
       } catch (error) {
         console.warn(`⚠️ Could not get stats for collection ${collectionName}:`, error);
@@ -204,7 +204,7 @@ if (require.main === module) {
       console.log('🎉 Database initialization script completed!');
       process.exit(0);
     })
-    .catch((error) => {
+    .catch((error: unknown) => {
       console.error('💥 Database initialization script failed:', error);
       process.exit(1);
     });
