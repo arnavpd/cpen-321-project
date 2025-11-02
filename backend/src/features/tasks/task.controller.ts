@@ -10,7 +10,7 @@ export class TaskController {
     try {
       const { projectId } = req.params;
       const { name, assignee, status, deadline } = req.body;
-      const userId = req.user?.id;
+      const userId = req.user?._id;
 
       logger.info('=== CREATE TASK REQUEST ===');
       logger.info('Project ID:', projectId);
@@ -132,7 +132,7 @@ export class TaskController {
   async getTasksByProject(req: Request, res: Response): Promise<void> {
     try {
       const { projectId } = req.params;
-      const userId = req.user?.id;
+      const userId = req.user?._id;
 
       logger.info('=== GET TASKS BY PROJECT REQUEST ===');
       logger.info('Project ID (string):', projectId);
@@ -171,7 +171,7 @@ export class TaskController {
   async getTaskById(req: Request, res: Response): Promise<void> {
     try {
       const { taskId } = req.params;
-      const userId = req.user?.id;
+      const userId = req.user?._id;
 
       logger.info('=== GET TASK BY ID REQUEST ===');
       logger.info('Task ID:', taskId);
@@ -201,7 +201,7 @@ export class TaskController {
     try {
       const { taskId } = req.params;
       const { title, description, status, deadline, assignees } = req.body;
-      const userId = req.user?.id;
+      const userId = req.user?._id;
 
       logger.info('=== UPDATE TASK REQUEST ===');
       logger.info('Task ID:', taskId);
@@ -243,7 +243,7 @@ export class TaskController {
   async deleteTask(req: Request, res: Response): Promise<void> {
     try {
       const { taskId } = req.params;
-      const userId = req.user?.id;
+      const userId = req.user?._id;
 
       logger.info('=== DELETE TASK REQUEST ===');
       logger.info('Task ID:', taskId);
@@ -274,7 +274,7 @@ export class TaskController {
 
   async getAllTasks(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const userId = req.user?._id;
 
       logger.info('=== GET ALL TASKS DEBUG REQUEST ===');
       logger.info('User ID:', userId);
@@ -299,7 +299,7 @@ export class TaskController {
 
   async getAllUsers(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const userId = req.user?._id;
 
       logger.info('=== GET ALL USERS DEBUG REQUEST ===');
       logger.info('User ID:', userId);

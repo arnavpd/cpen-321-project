@@ -8,7 +8,7 @@ export class ProjectController {
   async createProject(req: Request, res: Response): Promise<void> {
     try {
       const { name, description } = req.body;
-      const userId = req.user?.id;
+      const userId = req.user?._id;
 
       logger.info(`Project creation request: name="${name}", userId=${userId}`);
 
