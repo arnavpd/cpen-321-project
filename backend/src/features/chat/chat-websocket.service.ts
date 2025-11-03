@@ -1,10 +1,7 @@
 import { Server as HTTPServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import logger from '../../utils/logger.util';
-import { chatMessageModel } from './chatMessage.model';
-import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
-import { userModel } from '../users/user.model';
 
 interface AuthenticatedSocket extends Socket {
   userId?: string;
