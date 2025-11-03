@@ -173,43 +173,106 @@ _(Placeholder for Jest coverage screenshot both with and without mocking)_
 
 ### 4.1. Location in Git of Front-end Test Suite:
 
-`frontend/src/androidTest/java/com/studygroupfinder/`
+`cpen-321-project\frontend\app\src\androidTest\java\com\cpen321\usermanagement\MyComposeTest.kt`
 
 ### 4.2. Tests
 
-- **Use Case: Login**
+- **Use Case: Creating a New Project (Use Case 2)**
 
   - **Expected Behaviors:**
     | **Scenario Steps** | **Test Case Steps** |
     | ------------------ | ------------------- |
-    | 1. The user opens "Add Todo Items" screen. | Open "Add Todo Items" screen. |
-    | 2. The app shows an input text field and an "Add" button. The add button is disabled. | Check that the text field is present on screen.<br>Check that the button labelled "Add" is present on screen.<br>Check that the "Add" button is disabled. |
-    | 3a. The user inputs an ill-formatted string. | Input "_^_^^OQ#$" in the text field. |
-    | 3a1. The app displays an error message prompting the user for the expected format. | Check that a dialog is opened with the text: "Please use only alphanumeric characters ". |
-    | 3. The user inputs a new item for the list and the add button becomes enabled. | Input "buy milk" in the text field.<br>Check that the button labelled "add" is enabled. |
-    | 4. The user presses the "Add" button. | Click the button labelled "add ". |
-    | 5. The screen refreshes and the new item is at the bottom of the todo list. | Check that a text box with the text "buy milk" is present on screen.<br>Input "buy chocolate" in the text field.<br>Click the button labelled "add".<br>Check that two text boxes are present on the screen with "buy milk" on top and "buy chocolate" at the bottom. |
-    | 5a. The list exceeds the maximum todo-list size. | Repeat steps 3 to 5 ten times.<br>Check that a dialog is opened with the text: "You have too many items, try completing one first". |
+    | 1. The app displays a "Create New Project" button which the user clicks | Check button labelled "Create New Project" is present on screen.<br>Click button labelled "Create New Project". |
+    | 2. The app displays a "Create New Project" form | Check "Create New Project" form is present on screen. |
+    | 3a. The user inputs an empty project name | Check button labelled "Create" is disabled. |
+    | 3. The user inputs a non-empty project name and optional description | Input "ProjectRandomNumber" under "Project Name". |
+    | 4. The user clicks the "Create" button | Check button labelled "Create" is enabled.<br>Click "Create" button. |
+    | 5. The user is taken to an invite page | Check text "Invite Page" is present on screen. |
+    | 6a. The user enters an invalid email address | Check "Invite User" input is present on screen.<br>Input "test" under "Invite User".<br>Check button labelled "Send Invites" is present on screen.<br>Click button labelled "Send Invites". |
+    | 6a1. The app displays an error message prompting the user to input a valid email address | Check dialog is opened with text: "Please enter a valid email address". |
+    | 6. The user enters the email addresses of other users they want to invite to the project | Check "Invite User" input is present on screen.<br>Input "c62826472@gmail.com" under "Invite User". |
+    | 7. The user clicks the "Send Invites" button | Check button labelled "Send Invites" is present on screen.<br>Click button labelled "Send Invites". |
+    | 8. The user sees a success message | Check dialog is opened with text: "Users were invited successfully!" |
+    | 9. The user is redirected to the home screen | Check project is visible on screen: "ProjectRandomNumber". |
 
   - **Test Logs:**
     ```
-    [Placeholder for Espresso test execution logs]
+    Note: This test currently fails because the invite users page has not been implemented yet.
+    Test execution requires completion of the user invitation feature.
     ```
+    ![create_project](\images\create_project.png)
+    ![invitation failed](\images\invite_failed.png)
 
-- **Use Case: ...**
+
+- **Use Case: Adding Project Expenses (Use Case 4)**
 
   - **Expected Behaviors:**
-
     | **Scenario Steps** | **Test Case Steps** |
     | ------------------ | ------------------- |
-    | ...                | ...                 |
+    | 1. The user opens an existing project | Click on "Test1" project to open project screen. |
+    | 2. The app displays an "Expense" button which the user clicks | Check button labelled "Expense" is present on screen.<br>Click button labelled "Expense". |
+    | 3. The app displays an "Add Expense" button which the user clicks | Check button labelled "Add Expense" is present on screen.<br>Click button labelled "Add Expense". |
+    | 4. The app displays an "Add New Expense" form | Check "Add New Expense" form is present on screen. |
+    | 5a. The user inputs an empty description | Click "Add Expense" button on form. |
+    | 5a1. The app displays an error message prompting the user to input valid values | Check dialog is opened with text: "Please fill all fields correctly". |
+    | 5b. The user inputs a non-numeric amount | Input "Test randomAmount" in "Description" text field.<br>Input "NON_INTEGER" in "Amount" text field.<br>Select "Arnav Prasad" in "Paid By" dropdown.<br>Select "Arnav Prasad" in "Split Between" section.<br>Click "Add Expense" button on form. |
+    | 5b1. The app displays an error message prompting the user to input valid values | Check dialog is opened with text: "Please fill all fields correctly". |
+    | 5c. The user does not select who paid | Input "Test randomAmount" in "Description" text field.<br>Input "randomAmount" in "Amount" text field.<br>Select "Arnav Prasad" in "Split Between" section.<br>Click "Add Expense" button on form. |
+    | 5c1. The app displays an error message prompting the user to input valid values | Check dialog is opened with text: "Please fill all fields correctly". |
+    | 5d. The user does not select who to split expense between | Input "Test randomAmount" in "Description" text field.<br>Input "randomAmount" in "Amount" text field.<br>Select "Arnav Prasad" in "Paid By" dropdown.<br>Click "Add Expense" button on form. |
+    | 5d1. The app displays an error message prompting the user to input valid values | Check dialog is opened with text: "Please fill all fields correctly". |
+    | 5. The user inputs valid inputs | Input "Test randomAmount" in "Description" text field.<br>Input "randomAmount" in "Amount" text field.<br>Select "Arnav Prasad" in "Paid By" dropdown.<br>Select "Arnav Prasad" in "Split Between" section. |
+    | 6. The user clicks the "Add Expense" button | Click "Add Expense" button on form. |
+    | 7. The user can view the new expense | Check the description "Test (randomAmount)" is present on screen.<br>Check the amount "(randomAmount)" is present on screen.<br>Check the paid by user "Arnav Prasad" is present on screen.<br>Check the split between user(s) "Arnav Prasad" is present on the screen. |
 
   - **Test Logs:**
     ```
-    [Placeholder for Espresso test execution logs]
-    ```
+    Task :app:connectedDebugAndroidTest
+    Starting 1 tests on Pixel_7(AVD) - 13
+    Connected to process 21754 on device 'Pixel_7 [emulator-5554]'.
 
-- **...**
+    Pixel_7(AVD) - 13 Tests 0/1 completed. (0 skipped) (0 failed)
+    Finished 1 tests on Pixel_7(AVD) - 13
+
+    BUILD SUCCESSFUL in 56s
+    72 actionable tasks: 1 executed, 71 up-to-date
+    ```
+    ![add_expense test execution logs)](\images\add_expense_1.png)
+    ![add_expense test execution logs)](\images\add_expense.png)
+
+- **Use Case: Creating/Assigning Project Tasks and Deadlines to Group Members (Use Case 5)**
+
+  - **Expected Behaviors:**
+    | **Scenario Steps** | **Test Case Steps** |
+    | ------------------ | ------------------- |
+    | 1. The user opens an existing project | Click on "Test1" project to open project screen. |
+    | 2. The app displays a "Task Board" button which the user clicks | Check button labelled "Task Board" is present on screen.<br>Click button labelled "Task Board". |
+    | 3. The app displays a "Create Task" button which the user clicks | Check button labelled "Create Task" is present on screen.<br>Click button labelled "Create Task". |
+    | 4. The app displays an "Create New Task" form | Check "Create New Task" form is present on screen. |
+    | 5a. The user inputs an empty task name | Select "Arnav Prasad" under "Assignee" dropdown.<br>Select "TODAY_DATE" under "Deadline".<br>Select "In progress" under "Status" dropdown.<br>Click "Create" button. |
+    | 5a1. The app displays an error message prompting the user to input a non empty task | Check dialog is opened with text: "Task name cannot be empty". |
+    | 5b. The user does not select an "Assignee" | Input "Task1" under "Task Name".<br>Select "TODAY_DATE" under "Deadline".<br>Select "In progress" under "Status" dropdown.<br>Click "Create" button. |
+    | 5b1. The app displays an error message prompting the user to input a non empty Assignee | Check dialog is opened with text: "Assignee cannot be empty". |
+    | 5c. The user selects a date that has already passed | Input "Task1" under "Task Name".<br>Select "Arnav Prasad" under "Assignee" dropdown.<br>Select "In progress" under "Status" dropdown.<br>Select "TODAY_DATE - 1" under "Deadline".<br>Click "Create" button. |
+    | 5c1. The app displays an error message prompting the user to input a future date | Check dialog is opened with text: "Please enter a future date". |
+    | 5. The user inputs valid inputs | Input "TaskRandomNumber" under "Task Name".<br>Select "Arnav Prasad" under "Assignee" dropdown.<br>Select "In progress" under "Status" dropdown.<br>Select "TODAY_DATE" under "Deadline". |
+    | 6. The user clicks the "Create" button | Click "Create" button. |
+    | 7. The user can view the new task | Check the Task Name "TaskRandomNumber" is present on screen.<br>Check the Assignee "Arnav Prasad" is present on screen.<br>Check the date "TODAY_DATE" is present on screen.<br>Check the status "In progress" is present on screen. |
+
+  - **Test Logs:**
+    ```
+    Task :app:connectedDebugAndroidTest
+    Starting 1 tests on Pixel_7(AVD) - 13
+
+    Pixel_7(AVD) - 13 Tests 0/1 completed. (0 skipped) (0 failed)
+    Pixel_7(AVD) - 13 Tests 1/1 completed. (0 skipped) (0 failed)
+    Finished 1 tests on Pixel_7(AVD) - 13
+
+    BUILD SUCCESSFUL in 57s
+    72 actionable tasks: 1 executed, 71 up-to-date
+    ```
+    ![create_task test execution logs2](\images\create_task_1.png)
+    ![create_task test execution logs](\images\create_task.png)
 
 ---
 
