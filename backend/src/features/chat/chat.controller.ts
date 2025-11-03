@@ -10,7 +10,7 @@ export class ChatController {
     try {
       const { projectId } = req.params;
       const { content } = req.body;
-      const userId = req.user?.id;
+      const userId = req.user?._id;
 
       logger.info(`=== SEND CHAT MESSAGE REQUEST ===`);
       logger.info(`projectId: ${projectId}`);
@@ -43,8 +43,8 @@ export class ChatController {
       }
 
       // Check if user has access to this project
-      const isOwner = project.ownerId.toString() === userId;
-      const isMember = project.members.some(member => member.userId.toString() === userId);
+      const isOwner = project.ownerId.toString() === userId.toString();
+      const isMember = project.members.some(member => member.userId.toString() === userId.toString());
 
       if (!isOwner && !isMember) {
         res.status(403).json({ message: 'Access denied to this project' });
@@ -100,7 +100,7 @@ export class ChatController {
     try {
       const { projectId } = req.params;
       const { limit = 50, skip = 0 } = req.query;
-      const userId = req.user?.id;
+      const userId = req.user?._id;
 
       logger.info(`=== GET MESSAGES REQUEST ===`);
       logger.info(`projectId: ${projectId}`);
@@ -121,8 +121,8 @@ export class ChatController {
       }
 
       // Check if user has access to this project
-      const isOwner = project.ownerId.toString() === userId;
-      const isMember = project.members.some(member => member.userId.toString() === userId);
+      const isOwner = project.ownerId.toString() === userId.toString();
+      const isMember = project.members.some(member => member.userId.toString() === userId.toString());
 
       if (!isOwner && !isMember) {
         res.status(403).json({ message: 'Access denied to this project' });
@@ -157,7 +157,7 @@ export class ChatController {
   async deleteMessage(req: Request, res: Response): Promise<void> {
     try {
       const { projectId, messageId } = req.params;
-      const userId = req.user?.id;
+      const userId = req.user?._id;
 
       logger.info(`=== DELETE MESSAGE REQUEST ===`);
       logger.info(`projectId: ${projectId}`);
@@ -178,7 +178,7 @@ export class ChatController {
       }
 
       // Check if user is the sender of the message
-      if (message.senderId.toString() !== userId) {
+      if (message.senderId.toString() !== userId.toString()) {
         res.status(403).json({ message: 'You can only delete your own messages' });
         return;
       }

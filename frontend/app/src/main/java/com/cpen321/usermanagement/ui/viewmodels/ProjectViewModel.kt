@@ -197,6 +197,40 @@ class ProjectViewModel @Inject constructor(
             return
         }
 
+        // Validate deadline if provided
+        deadline?.let {
+            if (it.isNotBlank()) {
+                try {
+                    val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+                    val deadlineDate = dateFormat.parse(it)
+                    val today = java.util.Calendar.getInstance()
+                    today.set(java.util.Calendar.HOUR_OF_DAY, 0)
+                    today.set(java.util.Calendar.MINUTE, 0)
+                    today.set(java.util.Calendar.SECOND, 0)
+                    today.set(java.util.Calendar.MILLISECOND, 0)
+                    
+                    val deadlineCalendar = java.util.Calendar.getInstance()
+                    deadlineDate?.let { date ->
+                        deadlineCalendar.time = date
+                        deadlineCalendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
+                        deadlineCalendar.set(java.util.Calendar.MINUTE, 0)
+                        deadlineCalendar.set(java.util.Calendar.SECOND, 0)
+                        deadlineCalendar.set(java.util.Calendar.MILLISECOND, 0)
+                        
+                        if (deadlineCalendar.timeInMillis < today.timeInMillis) {
+                            _uiState.value = _uiState.value.copy(
+                                errorMessage = "Please enter a future date"
+                            )
+                            return
+                        }
+                    }
+                } catch (e: Exception) {
+                    // If date parsing fails, allow it to pass (backend will handle it)
+                    Log.e(TAG, "Error parsing deadline date: $it", e)
+                }
+            }
+        }
+
         // Prevent multiple simultaneous task creation calls
         if (isCreatingTask) {
             Log.d(TAG, "Task creation already in progress, ignoring duplicate call")

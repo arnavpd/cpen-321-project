@@ -7,7 +7,7 @@ import logger from '../../utils/logger.util';
 export class ExpenseController {
   async createExpense(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const userId = req.user?._id;
       if (!userId) {
         res.status(401).json({ message: 'User not authenticated' });
         return;
@@ -64,7 +64,7 @@ export class ExpenseController {
 
   async getProjectExpenses(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const userId = req.user?._id;
       if (!userId) {
         res.status(401).json({ message: 'User not authenticated' });
         return;
@@ -117,7 +117,7 @@ export class ExpenseController {
 
   async deleteExpense(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const userId = req.user?._id;
       if (!userId) {
         res.status(401).json({ message: 'User not authenticated' });
         return;
@@ -138,7 +138,7 @@ export class ExpenseController {
       }
 
       // Check if user is the creator or project owner
-      if (expense.createdBy.toString() !== userId) {
+      if (expense.createdBy.toString() !== userId?.toString()) {
         res.status(403).json({ message: 'Unauthorized to delete this expense' });
         return;
       }

@@ -28,6 +28,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
@@ -67,6 +68,7 @@ import android.util.Log
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -94,6 +96,8 @@ import java.util.Date
 import java.util.Locale
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.coroutineScope
+import android.os.Handler
+import android.os.Looper
 
 data class Expense(
     val id: String,
@@ -360,6 +364,7 @@ private fun ProjectBody(
     var expensePaidBy by remember { mutableStateOf("") }
     var paidByExpanded by remember { mutableStateOf(false) }
     var selectedUsersForSplit by remember { mutableStateOf(setOf<String>()) }
+    var expenseErrorMessage by remember { mutableStateOf<String?>(null) }
 
     // Get actual project members - recalculate when currentProject changes or refresh is triggered
     val allMembers = remember(currentProject, refreshMembersTrigger) {
@@ -1295,86 +1300,54 @@ private fun ProjectBody(
                             placeholder = { Text("Enter task name") }
                         )
 
-                        // Assignee Dropdown - Project Members
+                        // Assignee Dropdown - Same pattern as Expense form
                         Text(
-                            text = "Assignee",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(bottom = 4.dp)
+                            text = "Assignee:",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium
                         )
                         Box {
-                            OutlinedTextField(
-                                value = if (isLoadingUserNames && assignee.isNotEmpty()) {
-                                    "Loading..."
-                                } else if (assignee.isNotEmpty()) {
-                                    val userName = userNames[assignee] ?: assignee
-                                    if (assignee == currentUser?._id) {
-                                        "$userName (Me)"
+                            TextButton(
+                                onClick = { 
+                                    assigneeExpanded = !assigneeExpanded
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = if (isLoadingUserNames && assignee.isNotEmpty()) {
+                                        "Loading..."
+                                    } else if (assignee.isNotEmpty()) {
+                                        val userName = userNames[assignee] ?: assignee
+                                        if (assignee == currentUser?._id) {
+                                            "$userName (Me)"
+                                        } else {
+                                            userName
+                                        }
                                     } else {
-                                        userName
-                                    }
-                                } else {
-                                    ""
-                                },
-                                onValueChange = { },
-                                readOnly = true,
-                                label = { Text("Select Assignee") },
-                                placeholder = { Text("Choose a project member") },
-                                trailingIcon = {
-                                    IconButton(
-                                        onClick = { assigneeExpanded = !assigneeExpanded }
-                                    ) {
-                                        Icon(
-                                            imageVector = if (assigneeExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                                            contentDescription = "Dropdown"
-                                        )
-                                    }
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { assigneeExpanded = !assigneeExpanded }
-                            )
+                                        "Select assignee"
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Start
+                                )
+                            }
                             DropdownMenu(
                                 expanded = assigneeExpanded,
                                 onDismissRequest = { assigneeExpanded = false }
                             ) {
-                                if (isLoadingUserNames) {
-                                    DropdownMenuItem(
-                                        text = {
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                CircularProgressIndicator(
-                                                    modifier = Modifier.size(16.dp),
-                                                    strokeWidth = 2.dp
-                                                )
-                                                Spacer(modifier = Modifier.width(8.dp))
-                                                Text("Loading members...")
-                                            }
-                                        },
-                                        onClick = { }
-                                    )
-                                } else {
-                                    allMembers.forEach { member ->
-                                        DropdownMenuItem(
-                                            text = {
-                                                val userName = userNames[member.userId] ?: member.userId
-                                                val displayName = if (member.userId == currentUser?._id) {
-                                                    "$userName (Me)"
-                                                } else {
-                                                    userName
-                                                }
-                                                Text(
-                                                    text = displayName,
-                                                    style = MaterialTheme.typography.bodyMedium
-                                                )
-                                            },
-                                            onClick = {
-                                                assignee = member.userId
-                                                assigneeExpanded = false
-                                            }
-                                        )
+                                allMembers.forEach { member ->
+                                    val userName = userNames[member.userId] ?: member.userId
+                                    val displayName = if (member.userId == currentUser?._id) {
+                                        "$userName (Me)"
+                                    } else {
+                                        userName
                                     }
+                                    DropdownMenuItem(
+                                        text = { Text(displayName) },
+                                        onClick = {
+                                            assignee = member.userId
+                                            assigneeExpanded = false
+                                        }
+                                    )
                                 }
                             }
                         }
@@ -1422,66 +1395,43 @@ private fun ProjectBody(
                             }
                         }
 
-                        // Date Picker for Deadline
+                        // Date Picker for Deadline - Simplified to match expense form pattern
                         Text(
-                            text = "Deadline",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(bottom = 4.dp)
+                            text = "Deadline:",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium
                         )
-                        OutlinedTextField(
-                            value = if (selectedDate != null) {
-                                val date = java.util.Date(selectedDate!!)
-                                val formatter = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
-                                formatter.format(date)
-                            } else "",
-                            onValueChange = { },
-                            readOnly = true,
-                            label = { Text("Select Date") },
-                            trailingIcon = {
-                                IconButton(
-                                    onClick = {
-                                        // Show date picker
-                                        val datePickerDialog = android.app.DatePickerDialog(
-                                            context,
-                                            { _, year, month, dayOfMonth ->
-                                                val calendar = java.util.Calendar.getInstance()
-                                                calendar.set(year, month, dayOfMonth)
-                                                selectedDate = calendar.timeInMillis
-                                                deadline = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(calendar.time)
-                                            },
-                                            java.util.Calendar.getInstance().get(java.util.Calendar.YEAR),
-                                            java.util.Calendar.getInstance().get(java.util.Calendar.MONTH),
-                                            java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_MONTH)
-                                        )
-                                        datePickerDialog.show()
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.DateRange,
-                                        contentDescription = "Date Picker"
-                                    )
-                                }
+                        TextButton(
+                            onClick = {
+                                // Show date picker - defaults to today
+                                val datePickerDialog = android.app.DatePickerDialog(
+                                    context,
+                                    { _, year, month, dayOfMonth ->
+                                        val calendar = java.util.Calendar.getInstance()
+                                        calendar.set(year, month, dayOfMonth)
+                                        selectedDate = calendar.timeInMillis
+                                        deadline = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(calendar.time)
+                                    },
+                                    java.util.Calendar.getInstance().get(java.util.Calendar.YEAR),
+                                    java.util.Calendar.getInstance().get(java.util.Calendar.MONTH),
+                                    java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_MONTH)
+                                )
+                                datePickerDialog.show()
                             },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    // Show date picker
-                                    val datePickerDialog = android.app.DatePickerDialog(
-                                        context,
-                                        { _, year, month, dayOfMonth ->
-                                            val calendar = java.util.Calendar.getInstance()
-                                            calendar.set(year, month, dayOfMonth)
-                                            selectedDate = calendar.timeInMillis
-                                            deadline = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(calendar.time)
-                                        },
-                                        java.util.Calendar.getInstance().get(java.util.Calendar.YEAR),
-                                        java.util.Calendar.getInstance().get(java.util.Calendar.MONTH),
-                                        java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_MONTH)
-                                    )
-                                    datePickerDialog.show()
-                                }
-                        )
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = if (selectedDate != null) {
+                                    val date = java.util.Date(selectedDate!!)
+                                    val formatter = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+                                    formatter.format(date)
+                                } else {
+                                    "Select deadline date"
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Start
+                            )
+                        }
                     }
                 },
                 confirmButton = {
@@ -1532,7 +1482,10 @@ private fun ProjectBody(
         // Create Expense Dialog
         if (showCreateExpenseDialog) {
             AlertDialog(
-                onDismissRequest = { showCreateExpenseDialog = false },
+                onDismissRequest = { 
+                    showCreateExpenseDialog = false
+                    expenseErrorMessage = null // Clear error when dialog is dismissed
+                },
                 title = {
                     Text("Add New Expense")
                 },
@@ -1542,14 +1495,20 @@ private fun ProjectBody(
                     ) {
                         OutlinedTextField(
                             value = expenseDescription,
-                            onValueChange = { expenseDescription = it },
+                            onValueChange = { 
+                                expenseDescription = it
+                                expenseErrorMessage = null // Clear error when user types
+                            },
                             label = { Text("Description") },
                             modifier = Modifier.fillMaxWidth()
                         )
 
                         OutlinedTextField(
                             value = expenseAmount,
-                            onValueChange = { expenseAmount = it },
+                            onValueChange = { 
+                                expenseAmount = it
+                                expenseErrorMessage = null // Clear error when user types
+                            },
                             label = { Text("Amount ($)") },
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -1562,7 +1521,10 @@ private fun ProjectBody(
                         )
                         Box {
                             TextButton(
-                                onClick = { paidByExpanded = !paidByExpanded },
+                                onClick = { 
+                                    paidByExpanded = !paidByExpanded
+                                    expenseErrorMessage = null // Clear error when user interacts
+                                },
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
@@ -1581,6 +1543,7 @@ private fun ProjectBody(
                                         onClick = {
                                             expensePaidBy = user
                                             paidByExpanded = false
+                                            expenseErrorMessage = null // Clear error when user selects
                                         }
                                     )
                                 }
@@ -1607,6 +1570,7 @@ private fun ProjectBody(
                                             } else {
                                                 selectedUsersForSplit - user
                                             }
+                                            expenseErrorMessage = null // Clear error when user changes selection
                                         }
                                     )
                                     Text(
@@ -1622,6 +1586,16 @@ private fun ProjectBody(
                                 text = "Selected: ${selectedUsersForSplit.joinToString(", ")}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        
+                        // Display error message if present
+                        if (expenseErrorMessage != null) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = expenseErrorMessage!!,
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall
                             )
                         }
                     }
@@ -1665,7 +1639,11 @@ private fun ProjectBody(
                                         expenses = expenses + newExpense
 
                                         Log.d("ProjectView", "Expense created and saved: $newExpense")
-                                        Toast.makeText(context, "Expense added: $expenseDescription", Toast.LENGTH_SHORT).show()
+                                        
+                                        // Show toast on main thread
+                                        Handler(Looper.getMainLooper()).post {
+                                            Toast.makeText(context, "Expense added: $expenseDescription", Toast.LENGTH_SHORT).show()
+                                        }
 
                                         // Reset form
                                         showCreateExpenseDialog = false
@@ -1673,13 +1651,17 @@ private fun ProjectBody(
                                         expenseAmount = ""
                                         expensePaidBy = ""
                                         selectedUsersForSplit = setOf()
+                                        expenseErrorMessage = null
                                     }.onFailure { error ->
                                         Log.e("ProjectView", "Failed to create expense", error)
-                                        Toast.makeText(context, "Failed to create expense: ${error.message}", Toast.LENGTH_LONG).show()
+                                        // Show toast on main thread
+                                        Handler(Looper.getMainLooper()).post {
+                                            Toast.makeText(context, "Failed to create expense: ${error.message}", Toast.LENGTH_LONG).show()
+                                        }
                                     }
                                 }
                             } else {
-                                Toast.makeText(context, "Please fill all fields correctly", Toast.LENGTH_SHORT).show()
+                                expenseErrorMessage = "Please fill all fields correctly"
                             }
                         }
                     ) {
