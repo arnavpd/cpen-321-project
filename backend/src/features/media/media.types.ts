@@ -4,9 +4,9 @@ export type UploadImageRequest = {
   file: Express.Multer.File;
 };
 
-export type UploadImageResponse = {
+export interface UploadImageResponse {
   message: string;
   data?: {
     image: string;
   };
-};
+}

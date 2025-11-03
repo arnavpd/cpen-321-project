@@ -4,6 +4,7 @@ import { authService } from './auth.service';
 import {
   AuthenticateUserRequest,
   AuthenticateUserResponse,
+  authenticateUserSchema,
 } from './auth.types';
 import logger from '../../utils/logger.util';
 
@@ -14,8 +15,16 @@ export class AuthController {
     next: NextFunction
   ) {
     try {
-      const { idToken } = req.body;
+      // Validate request body with Zod schema
+      const validationResult = authenticateUserSchema.safeParse(req.body);
+      
+      if (!validationResult.success) {
+        return res.status(400).json({
+          message: 'Invalid request: ID token is required',
+        });
+      }
 
+      const { idToken } = validationResult.data;
       const data = await authService.signUpWithGoogle(idToken);
 
       return res.status(201).json({
@@ -55,8 +64,16 @@ export class AuthController {
     next: NextFunction
   ) {
     try {
-      const { idToken } = req.body;
+      // Validate request body with Zod schema
+      const validationResult = authenticateUserSchema.safeParse(req.body);
+      
+      if (!validationResult.success) {
+        return res.status(400).json({
+          message: 'Invalid request: ID token is required',
+        });
+      }
 
+      const { idToken } = validationResult.data;
       const data = await authService.signInWithGoogle(idToken);
 
       logger.info('🔑 USER LOGGED IN - JWT TOKEN:', data.token);
