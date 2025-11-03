@@ -15,39 +15,41 @@ Create a `.env.test` file under `/backend` and populate it with `JWT_SECRET={sec
 Tests are Located in the `backend/tests/mocked` and `backend/tests/unmocked` for the mocked and unmocked tests respectively
 tests can be ran with `npm test` within the `/backend` directory
 #### 2.1.1. Tests
-
-| **Interface**                 | **Describe Group Location, No Mocks**                | **Describe Group Location, With Mocks**            | **Mocked Components**              |
+| **Interface** | **Describe Group Location, No Mocks** | **Describe Group Location, With Mocks** | **Mocked Components** |
 | ----------------------------- | ---------------------------------------------------- | -------------------------------------------------- | ---------------------------------- |
-| **GET /api/user/profile**     | [`tests/unmocked/userProfile.test.ts#L11`](../backend/tests/unmocked/userProfile.test.ts#L11) | [`tests/mocked/userProfile.test.ts#L18`](../backend/tests/mocked/userProfile.test.ts#L18) | User Database Model, JWT Verification |
-| **POST /api/user/profile**    | [`tests/unmocked/updateUserProfile.test.ts#L11`](../backend/tests/unmocked/updateUserProfile.test.ts#L11) | [`tests/mocked/updateUserProfile.test.ts#L11`](../backend/tests/mocked/updateUserProfile.test.ts#L11) | User Database Model, Profile Validation, Authentication Middleware |
-| DELETE | /api/user/profile | [Link](tests/mocked/deleteUserProfile.test.ts) | [Link](tests/unmocked/deleteUserProfile.test.ts) | User Database Model, Media Service, Authentication Middleware |
-| DELETE | /api/projects/:projectId | [Link](tests/mocked/deleteProject.test.ts) | [Link](tests/unmocked/deleteProject.test.ts) | Project Database Model, User Database Model, Authentication Middleware |
-| POST | /api/projects/join | [Link](tests/mocked/joinProject.test.ts) | [Link](tests/unmocked/joinProject.test.ts) | Project Database Model, Authentication Middleware, Validation Middleware |
-| DELETE | /api/projects/:projectId/members/:userId | [Link](tests/mocked/removeMember.test.ts) | [Link](tests/unmocked/removeMember.test.ts) | Project Database Model, User Database Model, Authentication Middleware |
-| PUT | /api/projects/:projectId | [Link](tests/mocked/updateProject.test.ts) | [Link](tests/unmocked/updateProject.test.ts) | Project Database Model, Authentication Middleware, Validation Middleware |
-| POST | /api/projects/:projectId/resources | [Link](tests/mocked/addResource.test.ts) | [Link](tests/unmocked/addResource.test.ts) | Project Database Model, Authentication Middleware, Validation Middleware |
-| **GET /api/user/:userId**     | [`tests/unmocked/getUserById.test.ts#L11`](../backend/tests/unmocked/getUserById.test.ts#L11) | [`tests/mocked/getUserById.test.ts#L11`](../backend/tests/mocked/getUserById.test.ts#L11) | User Database Model, JWT Authentication, ObjectId Validation |
-| **POST /api/auth/signin**     | [`tests/unmocked/authSignin.test.ts#L9`](../backend/tests/unmocked/authSignin.test.ts#L9) | [`tests/mocked/authSignin.test.ts#L11`](../backend/tests/mocked/authSignin.test.ts#L11) | Google OAuth2 Client, Auth Service, User Database |
-| **POST /api/auth/signup**     | [`tests/unmocked/authSignup.test.ts#L11`](../backend/tests/unmocked/authSignup.test.ts#L11) | [`tests/mocked/authSignup.test.ts#L11`](../backend/tests/mocked/authSignup.test.ts#L11) | Google OAuth2 Client, Auth Service, User Database Model |
-| **POST /api/projects**        | [`tests/unmocked/createProject.test.ts#L11`](../backend/tests/unmocked/createProject.test.ts#L11) | [`tests/mocked/createProject.test.ts#L12`](../backend/tests/mocked/createProject.test.ts#L12) | Project Database Model, User Database Model, Invitation Code Generator |
-| **POST /api/projects/:projectId/tasks** | [`tests/unmocked/createTask.test.ts#L12`](../backend/tests/unmocked/createTask.test.ts#L12) | [`tests/mocked/createTask.test.ts#L14`](../backend/tests/mocked/createTask.test.ts#L14) | Task Database Model, User Database Model |
-| **POST /api/expenses**        | [`tests/unmocked/createExpense.test.ts#L11`](../backend/tests/unmocked/createExpense.test.ts#L11) | [`tests/mocked/createExpense.test.ts#L12`](../backend/tests/mocked/createExpense.test.ts#L12) | Expense Database Model, Bill Split Calculation |
-| **GET /api/expenses/project/:projectId & DELETE /api/expenses/:expenseId** | [`tests/unmocked/expenseOperations.test.ts#L15`](../backend/tests/unmocked/expenseOperations.test.ts#L15) | [`tests/mocked/expenseOperations.test.ts#L75`](../backend/tests/mocked/expenseOperations.test.ts#L75) | Expense Database Model, User Authorization, Project Access Control |
-| **GET /api/projects/:projectId/tasks, GET /api/tasks/:taskId, PUT /api/tasks/:taskId, DELETE /api/tasks/:taskId, GET /api/tasks/debug/*** | [`tests/unmocked/taskManagement.test.ts#L11`](../backend/tests/unmocked/taskManagement.test.ts#L11) | [`tests/mocked/taskManagement.test.ts#L12`](../backend/tests/mocked/taskManagement.test.ts#L12) | Task Controller, Auth Middleware, Task Database Model, User Authorization |
-| **POST /api/chat/:projectId/messages** | [`tests/unmocked/sendChatMessage.test.ts#L9`](../backend/tests/unmocked/sendChatMessage.test.ts#L9) | [`tests/mocked/sendChatMessage.test.ts#L9`](../backend/tests/mocked/sendChatMessage.test.ts#L9) | Chat Message Database Model, Project Access Control, WebSocket Service |
-| **GET /api/chat/:projectId/messages** | [`tests/unmocked/getChatMessages.test.ts#L11`](../backend/tests/unmocked/getChatMessages.test.ts#L11) | [`tests/mocked/getChatMessages.test.ts#L11`](../backend/tests/mocked/getChatMessages.test.ts#L11) | Chat Message Database Model, Project Access Control, Message Pagination |
-| **DELETE /api/chat/:projectId/messages/:messageId** | [`tests/unmocked/deleteChatMessage.test.ts#L11`](../backend/tests/unmocked/deleteChatMessage.test.ts#L11) | [`tests/mocked/deleteChatMessage.test.ts#L11`](../backend/tests/mocked/deleteChatMessage.test.ts#L11) | Chat Message Database Model, User Authorization, Message Ownership Validation |
-| **Chat WebSocket Service** | [`tests/unmocked/chatWebSocketService.test.ts#L10`](../backend/tests/unmocked/chatWebSocketService.test.ts#L10) | [`tests/mocked/chatWebSocketService.test.ts#L12`](../backend/tests/mocked/chatWebSocketService.test.ts#L12) | Socket.IO Server, JWT Authentication Middleware, WebSocket Broadcasting, Project Room Management |
-| **POST /api/media/upload**     | [`tests/unmocked/uploadImage.test.ts#L9`](../backend/tests/unmocked/uploadImage.test.ts#L9) | [`tests/mocked/uploadImage.test.ts#L14`](../backend/tests/mocked/uploadImage.test.ts#L14) | Media Service, File System Operations, Multer File Handling |
-| **GET /api/calendar/status & POST /api/calendar/***     | [`tests/unmocked/calendar.test.ts#L14`](../backend/tests/unmocked/calendar.test.ts#L14) | [`tests/mocked/calendar.test.ts#L75`](../backend/tests/mocked/calendar.test.ts#L75) | Calendar Controller, User Database Model, Google OAuth Service |
-| GET | /api/calendar/oauth/authorize | [Link](tests/mocked/calendarAuthorize.test.ts) | [Link](tests/unmocked/calendarAuthorize.test.ts) | Calendar Service, Authentication Middleware, OAuth URL Generation |
-| POST | /api/calendar/enable | [Link](tests/mocked/calendarEnable.test.ts) | [Link](tests/unmocked/calendarEnable.test.ts) | User Database Model, Authentication Middleware, Calendar Service |
-| POST | /api/calendar/disable | [Link](tests/mocked/calendarDisable.test.ts) | [Link](tests/unmocked/calendarDisable.test.ts) | User Database Model, Authentication Middleware |
-| POST | /api/calendar/disconnect | [Link](tests/mocked/calendarDisconnect.test.ts) | [Link](tests/unmocked/calendarDisconnect.test.ts) | User Database Model, Calendar Service, Authentication Middleware |
-| **Project Management Operations (POST /api/projects, GET /api/projects, PUT /api/projects/:projectId)** | [`tests/unmocked/projectManagement.test.ts#L15`](../backend/tests/unmocked/projectManagement.test.ts#L15) | [`tests/mocked/projectManagement.test.ts#L145`](../backend/tests/mocked/projectManagement.test.ts#L145) | ProjectController Class, Project Database Model, User Authorization, Authentication Middleware |
-| **POST /user/login**          | [`tests/unmocked/authenticationLogin.test.js#L1`](#) | [`tests/mocked/authenticationLogin.test.js#L1`](#) | Google Authentication API, User DB |
-| **POST /study-groups/create** | ...                                                  | ...                                                | Study Group DB                     |
-| ...                           | ...                                                  | ...                                                | ...                                |
+| **GET /api/user/profile** | [`tests/unmocked/userProfile.test.ts#L13`](../backend/tests/unmocked/userProfile.test.ts#L13) | [`tests/mocked/userProfile.test.ts#L18`](../backend/tests/mocked/userProfile.test.ts#L18) | User Database Model, JWT Verification |
+| **POST /api/user/profile** | [`tests/unmocked/updateUserProfile.test.ts#L13`](../backend/tests/unmocked/updateUserProfile.test.ts#L13) | [`tests/mocked/updateUserProfile.test.ts#L13`](../backend/tests/mocked/updateUserProfile.test.ts#L13) | User Database Model, Profile Validation, Authentication Middleware |
+| **DELETE /api/user/profile** | [`tests/unmocked/deleteUserProfile.test.ts#L13`](../backend/tests/unmocked/deleteUserProfile.test.ts#L13) | [`tests/mocked/deleteUserProfile.test.ts#L13`](../backend/tests/mocked/deleteUserProfile.test.ts#L13) | User Database Model, Media Service, Authentication Middleware |
+| **GET /api/user/:userId** | [`tests/unmocked/getUserById.test.ts#L13`](../backend/tests/unmocked/getUserById.test.ts#L13) | [`tests/mocked/getUserById.test.ts#L13`](../backend/tests/mocked/getUserById.test.ts#L13) | User Database Model, JWT Authentication, ObjectId Validation |
+| **POST /api/auth/signin** | [`tests/unmocked/authSignin.test.ts#L11`](../backend/tests/unmocked/authSignin.test.ts#L11) | [`tests/mocked/authSignin.test.ts#L13`](../backend/tests/mocked/authSignin.test.ts#L13) | Google OAuth2 Client, Auth Service, User Database |
+| **POST /api/auth/signup** | [`tests/unmocked/authSignup.test.ts#L13`](../backend/tests/unmocked/authSignup.test.ts#L13) | [`tests/mocked/authSignup.test.ts#L13`](../backend/tests/mocked/authSignup.test.ts#L13) | Google OAuth2 Client, Auth Service, User Database Model |
+| **POST /api/projects** | [`tests/unmocked/createProject.test.ts#L13`](../backend/tests/unmocked/createProject.test.ts#L13) | [`tests/mocked/createProject.test.ts#L14`](../backend/tests/mocked/createProject.test.ts#L14) | Project Database Model, User Database Model, Invitation Code Generator |
+| **POST /api/projects, GET /api/projects, PUT /api/projects/:projectId** | [`tests/unmocked/projectManagement.test.ts#L17`](../backend/tests/unmocked/projectManagement.test.ts#L17) | [`tests/mocked/projectManagement.test.ts#L147`](../backend/tests/mocked/projectManagement.test.ts#L147) | ProjectController Class, Project Database Model, User Authorization, Authentication Middleware |
+| **PUT /api/projects/:projectId** | [`tests/unmocked/updateProject.test.ts#L13`](../backend/tests/unmocked/updateProject.test.ts#L13) | [`tests/mocked/updateProject.test.ts#L13`](../backend/tests/mocked/updateProject.test.ts#L13) | Project Database Model, Authentication Middleware, Validation Middleware |
+| **DELETE /api/projects/:projectId** | [`tests/unmocked/deleteProject.test.ts#L16`](../backend/tests/unmocked/deleteProject.test.ts#L16) | [`tests/mocked/deleteProject.test.ts#L16`](../backend/tests/mocked/deleteProject.test.ts#L16) | Project Database Model, User Database Model, Authentication Middleware |
+| **POST /api/projects/join** | [`tests/unmocked/joinProject.test.ts#L13`](../backend/tests/unmocked/joinProject.test.ts#L13) | [`tests/mocked/joinProject.test.ts#L13`](../backend/tests/mocked/joinProject.test.ts#L13) | Project Database Model, Authentication Middleware, Validation Middleware |
+| **DELETE /api/projects/:projectId/members/:userId** | [`tests/unmocked/removeMember.test.ts#L16`](../backend/tests/unmocked/removeMember.test.ts#L16) | [`tests/mocked/removeMember.test.ts#L16`](../backend/tests/mocked/removeMember.test.ts#L16) | Project Database Model, User Database Model, Authentication Middleware |
+| **POST /api/projects/:projectId/resources** | [`tests/unmocked/addResource.test.ts#L13`](../backend/tests/unmocked/addResource.test.ts#L13) | [`tests/mocked/addResource.test.ts#L13`](../backend/tests/mocked/addResource.test.ts#L13) | Project Database Model, Authentication Middleware, Validation Middleware |
+| **POST /api/projects/:projectId/tasks** | [`tests/unmocked/createTask.test.ts#L14`](../backend/tests/unmocked/createTask.test.ts#L14) | [`tests/mocked/createTask.test.ts#L16`](../backend/tests/mocked/createTask.test.ts#L16) | Task Database Model, User Database Model |
+| **GET /api/projects/:projectId/tasks** | [`tests/unmocked/taskManagement.test.ts#L13`](../backend/tests/unmocked/taskManagement.test.ts#L13) | [`tests/mocked/taskManagement.test.ts#L14`](../backend/tests/mocked/taskManagement.test.ts#L14) | Task Controller, Auth Middleware, Task Database Model, User Authorization |
+| **GET /api/tasks/:taskId** | [`tests/unmocked/taskManagement.test.ts#L13`](../backend/tests/unmocked/taskManagement.test.ts#L13) | [`tests/mocked/taskManagement.test.ts#L14`](../backend/tests/mocked/taskManagement.test.ts#L14) | Task Controller, Auth Middleware, Task Database Model, User Authorization |
+| **PUT /api/tasks/:taskId** | [`tests/unmocked/taskManagement.test.ts#L13`](../backend/tests/unmocked/taskManagement.test.ts#L13) | [`tests/mocked/taskManagement.test.ts#L14`](../backend/tests/mocked/taskManagement.test.ts#L14) | Task Controller, Auth Middleware, Task Database Model, User Authorization |
+| **DELETE /api/tasks/:taskId** | [`tests/unmocked/taskManagement.test.ts#L13`](../backend/tests/unmocked/taskManagement.test.ts#L13) | [`tests/mocked/taskManagement.test.ts#L14`](../backend/tests/mocked/taskManagement.test.ts#L14) | Task Controller, Auth Middleware, Task Database Model, User Authorization |
+| **POST /api/expenses** | [`tests/unmocked/createExpense.test.ts#L13`](../backend/tests/unmocked/createExpense.test.ts#L13) | [`tests/mocked/createExpense.test.ts#L14`](../backend/tests/mocked/createExpense.test.ts#L14) | Expense Database Model, Bill Split Calculation |
+| **GET /api/expenses/project/:projectId** | [`tests/unmocked/expenseOperations.test.ts#L17`](../backend/tests/unmocked/expenseOperations.test.ts#L17) | [`tests/mocked/expenseOperations.test.ts#L77`](../backend/tests/mocked/expenseOperations.test.ts#L77) | Expense Database Model, User Authorization, Project Access Control |
+| **DELETE /api/expenses/:expenseId** | [`tests/unmocked/expenseOperations.test.ts#L17`](../backend/tests/unmocked/expenseOperations.test.ts#L17) | [`tests/mocked/expenseOperations.test.ts#L77`](../backend/tests/mocked/expenseOperations.test.ts#L77) | Expense Database Model, User Authorization, Project Access Control |
+| **POST /api/chat/:projectId/messages** | [`tests/unmocked/sendChatMessage.test.ts#L11`](../backend/tests/unmocked/sendChatMessage.test.ts#L11) | [`tests/mocked/sendChatMessage.test.ts#L11`](../backend/tests/mocked/sendChatMessage.test.ts#L11) | Chat Message Database Model, Project Access Control, WebSocket Service |
+| **GET /api/chat/:projectId/messages** | [`tests/unmocked/getChatMessages.test.ts#L13`](../backend/tests/unmocked/getChatMessages.test.ts#L13) | [`tests/mocked/getChatMessages.test.ts#L13`](../backend/tests/mocked/getChatMessages.test.ts#L13) | Chat Message Database Model, Project Access Control, Message Pagination |
+| **DELETE /api/chat/:projectId/messages/:messageId** | [`tests/unmocked/deleteChatMessage.test.ts#L13`](../backend/tests/unmocked/deleteChatMessage.test.ts#L13) | [`tests/mocked/deleteChatMessage.test.ts#L13`](../backend/tests/mocked/deleteChatMessage.test.ts#L13) | Chat Message Database Model, User Authorization, Message Ownership Validation |
+| **WebSocket /chat** | [`tests/unmocked/chatWebSocketService.test.ts#L12`](../backend/tests/unmocked/chatWebSocketService.test.ts#L12) | [`tests/mocked/chatWebSocketService.test.ts#L14`](../backend/tests/mocked/chatWebSocketService.test.ts#L14) | Socket.IO Server, JWT Authentication Middleware, WebSocket Broadcasting, Project Room Management |
+| **POST /api/media/upload** | [`tests/unmocked/uploadImage.test.ts#L11`](../backend/tests/unmocked/uploadImage.test.ts#L11) | [`tests/mocked/uploadImage.test.ts#L16`](../backend/tests/mocked/uploadImage.test.ts#L16) | Media Service, File System Operations, Multer File Handling |
+| **GET /api/calendar/status** | [`tests/unmocked/calendar.test.ts#L16`](../backend/tests/unmocked/calendar.test.ts#L16) | [`tests/mocked/calendar.test.ts#L77`](../backend/tests/mocked/calendar.test.ts#L77) | Calendar Controller, User Database Model, Google OAuth Service |
+| **GET /api/calendar/oauth/authorize** | [`tests/unmocked/calendarAuthorize.test.ts#L16`](../backend/tests/unmocked/calendarAuthorize.test.ts#L16) | [`tests/mocked/calendarAuthorize.test.ts#L16`](../backend/tests/mocked/calendarAuthorize.test.ts#L16) | Calendar Service, Authentication Middleware, OAuth URL Generation |
+| **POST /api/calendar/enable** | [`tests/unmocked/calendarEnable.test.ts#L13`](../backend/tests/unmocked/calendarEnable.test.ts#L13) | [`tests/mocked/calendarEnable.test.ts#L13`](../backend/tests/mocked/calendarEnable.test.ts#L13) | User Database Model, Authentication Middleware, Calendar Service |
+| **POST /api/calendar/disable** | [`tests/unmocked/calendarDisable.test.ts#L13`](../backend/tests/unmocked/calendarDisable.test.ts#L13) | [`tests/mocked/calendarDisable.test.ts#L13`](../backend/tests/mocked/calendarDisable.test.ts#L13) | User Database Model, Authentication Middleware |
+| **POST /api/calendar/disconnect** | [`tests/unmocked/calendarDisconnect.test.ts#L13`](../backend/tests/unmocked/calendarDisconnect.test.ts#L13) | [`tests/mocked/calendarDisconnect.test.ts#L13`](../backend/tests/mocked/calendarDisconnect.test.ts#L13) | User Database Model, Calendar Service, Authentication Middleware |
+
+
 
 #### 2.1.2. Commit Hash Where Tests Run
 
@@ -101,15 +103,16 @@ tests can be ran with `npm test` within the `/backend` directory
 
 ### 2.3. Jest Coverage Report Screenshots for Tests Without Mocking
 
-_(Placeholder for Jest coverage screenshot without mocking)_
+  ![unmocked](\images\jest_unmocked.png)
+
 
 ### 2.4. Jest Coverage Report Screenshots for Tests With Mocking
 
-_(Placeholder for Jest coverage screenshot with mocking)_
+  ![mocked](\images\jest_mocked.png)
 
 ### 2.5. Jest Coverage Report Screenshots for Both Tests With and Without Mocking
 
-_(Placeholder for Jest coverage screenshot both with and without mocking)_
+  ![both](\images\jest_both.png)
 
 ---
 
@@ -130,7 +133,7 @@ _(Placeholder for Jest coverage screenshot both with and without mocking)_
   - **Verification:** This test suite measures API response times to ensure acceptable performance under normal operating conditions. It includes three main test scenarios: (1) Health check endpoint should respond within 200ms, (2) Multiple concurrent requests should complete within 1000ms total, and (3) Sequential requests should maintain consistent performance with each request under 500ms. The tests use Jest with supertest to measure actual response times and validate that the system meets performance requirements for good user experience.
   - **Test Cases:**
     - `should respond to health check within 200ms`: Tests basic endpoint responsiveness
-    - `should handle multiple concurrent requests within acceptable time`: Tests system performance under concurrent load (5 simultaneous requests)  
+    - `should handle multiple concurrent requests within acceptable time`: Tests system performance under concurrent load (5 simultaneous requests)
     - `should maintain performance under sequential load`: Tests consistent performance over 10 sequential requests
   - **Performance Thresholds:**
     - Individual request: < 500ms
@@ -150,7 +153,7 @@ _(Placeholder for Jest coverage screenshot both with and without mocking)_
     ```
 
 - **Data Security & Authorization**
-  
+
   - **Verification:** This test suite validates that users can only access data they are authorized to view, ensuring proper data isolation and privacy protection. It tests three main security areas: (1) Chat message access control - users cannot read messages from projects they're not members of, (2) Project access security - users cannot see projects they don't have access to, and (3) Token security validation - invalid tokens are properly rejected and token validation performs efficiently under load.
   - **Test Cases:**
     - `should deny access to chat messages from unauthorized project`: Tests data isolation between user groups
@@ -163,7 +166,7 @@ _(Placeholder for Jest coverage screenshot both with and without mocking)_
     - `should validate token performance under load`: Tests authentication performance under repeated requests
   - **Security Thresholds:**
     - Access denial response time: < 500ms
-    - Token validation time: < 100ms per request  
+    - Token validation time: < 100ms per request
     - Average token validation performance: < 50ms
     - All unauthorized access attempts: Must return 401/403 status codes
 
@@ -245,19 +248,20 @@ _(Placeholder for Jest coverage screenshot both with and without mocking)_
   - **Expected Behaviors:**
     | **Scenario Steps** | **Test Case Steps** |
     | ------------------ | ------------------- |
-    | 1. The user opens an existing project | Click on "Test1" project to open project screen. |
-    | 2. The app displays a "Task Board" button which the user clicks | Check button labelled "Task Board" is present on screen.<br>Click button labelled "Task Board". |
-    | 3. The app displays a "Create Task" button which the user clicks | Check button labelled "Create Task" is present on screen.<br>Click button labelled "Create Task". |
-    | 4. The app displays an "Create New Task" form | Check "Create New Task" form is present on screen. |
-    | 5a. The user inputs an empty task name | Select "Arnav Prasad" under "Assignee" dropdown.<br>Select "TODAY_DATE" under "Deadline".<br>Select "In progress" under "Status" dropdown.<br>Click "Create" button. |
-    | 5a1. The app displays an error message prompting the user to input a non empty task | Check dialog is opened with text: "Task name cannot be empty". |
-    | 5b. The user does not select an "Assignee" | Input "Task1" under "Task Name".<br>Select "TODAY_DATE" under "Deadline".<br>Select "In progress" under "Status" dropdown.<br>Click "Create" button. |
-    | 5b1. The app displays an error message prompting the user to input a non empty Assignee | Check dialog is opened with text: "Assignee cannot be empty". |
-    | 5c. The user selects a date that has already passed | Input "Task1" under "Task Name".<br>Select "Arnav Prasad" under "Assignee" dropdown.<br>Select "In progress" under "Status" dropdown.<br>Select "TODAY_DATE - 1" under "Deadline".<br>Click "Create" button. |
-    | 5c1. The app displays an error message prompting the user to input a future date | Check dialog is opened with text: "Please enter a future date". |
-    | 5. The user inputs valid inputs | Input "TaskRandomNumber" under "Task Name".<br>Select "Arnav Prasad" under "Assignee" dropdown.<br>Select "In progress" under "Status" dropdown.<br>Select "TODAY_DATE" under "Deadline". |
-    | 6. The user clicks the "Create" button | Click "Create" button. |
-    | 7. The user can view the new task | Check the Task Name "TaskRandomNumber" is present on screen.<br>Check the Assignee "Arnav Prasad" is present on screen.<br>Check the date "TODAY_DATE" is present on screen.<br>Check the status "In progress" is present on screen. |
+    | 1. The user opens an existing project | • Click on "Test1" project to open project screen. |
+    | 2. The app displays a "Task Board" button which the user clicks | • Check button labelled "Task Board" is present on screen.<br>• Click button labelled "Task Board". |
+    | 3. The app displays a "Create Task" button which the user clicks | • Check button labelled "Create Task" is present on screen.<br>• Click button labelled "Create Task". |
+    | 4. The app displays an "Create New Task" form | • Check "Create New Task" form is present on screen. |
+    | 5a. The user inputs an empty task name | • Select "Arnav Prasad" under "Assignee" dropdown.<br>• Select "TODAY_DATE" under "Deadline".<br>• Select "In progress" under "Status" dropdown.<br>• Click "Create" button. |
+    | 5a1. The app displays an error message prompting the user to input a non empty task | • Check dialog is opened with text: "Task name cannot be empty". |
+    | 5b. The user does not select an "Assignee" | • Input "Task1" under "Task Name".<br>• Select "TODAY_DATE" under "Deadline".<br>• Select "In progress" under "Status" dropdown.<br>• Click "Create" button. |
+    | 5b1. The app displays an error message prompting the user to input a non empty Assignee | • Check dialog is opened with text: "Assignee cannot be empty". |
+    | 5c. The user selects a date that has already passed | • Input "Task1" under "Task Name".<br>• Select "Arnav Prasad" under "Assignee" dropdown.<br>• Select "In progress" under "Status" dropdown.<br>• Select "TODAY_DATE - 1" under "Deadline".<br>• Click "Create" button. |
+    | 5c1. The app displays an error message prompting the user to input a future date | • Check dialog is opened with text: "Please enter a future date". |
+    | 5. The user inputs valid inputs | • Input "TaskRandomNumber" under "Task Name".<br>• Select "Arnav Prasad" under "Assignee" dropdown.<br>• Select "In progress" under "Status" dropdown.<br>• Select "TODAY_DATE" under "Deadline". |
+    | 6. The user clicks the "Create" button | • Click "Create" button. |
+    | 7. The user can view the new task | • Check the Task Name "TaskRandomNumber" is present on screen.<br>• Check the Assignee "Arnav Prasad" is present on screen.<br>• Check the date "TODAY_DATE" is present on screen.<br>• Check the status "In progress" is present on screen. |
+
 
   - **Test Logs:**
     ```
@@ -284,21 +288,12 @@ _(Placeholder for Jest coverage screenshot both with and without mocking)_
 
 ### 5.2. Unfixed Issues per Codacy Category
 
-_(Placeholder for screenshots of Codacy's Category Breakdown table in Overview)_
+   ![codacy no issues](\images\codacy_no_issues.png)
 
 ### 5.3. Unfixed Issues per Codacy Code Pattern
 
-_(Placeholder for screenshots of Codacy's Issues page)_
+
+ Not applicable as there are no Codacy issues (see above image).
 
 ### 5.4. Justifications for Unfixed Issues
-
-- **Code Pattern: [Usage of Deprecated Modules](#)**
-
-  1. **Issue**
-
-     - **Location in Git:** [`src/services/chatService.js#L31`](#)
-     - **Justification:** ...
-
-  2. ...
-
-- ...
+ Not applicable as there are no Codacy issues (see above image).
