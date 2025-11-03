@@ -18,7 +18,8 @@ const storage = multer.diskStorage({
     // Use cryptographically secure random number instead of Math.random()
     const randomBytes = crypto.randomBytes(4).readUInt32BE(0);
     const uniqueSuffix = Date.now() + '-' + randomBytes;
-    cb(null, `${uniqueSuffix}${path.extname(file.originalname)}`);
+    const fileExtension = path.extname(String(file.originalname));
+    cb(null, `${uniqueSuffix}${fileExtension}`);
   },
 });
 

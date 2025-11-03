@@ -53,7 +53,8 @@ export class ChatWebSocketService {
         
         if (!rawToken || typeof rawToken !== 'string') {
           logger.warn('Socket connection attempted without token');
-          return next(new Error('Authentication error'));
+          next(new Error('Authentication error'));
+          return;
         }
 
         const token: string = rawToken;
