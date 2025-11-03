@@ -83,7 +83,7 @@ export class ChatController {
 
       // Broadcast new message via WebSocket
       if (global.chatWebSocketService) {
-        await global.chatWebSocketService.broadcastNewMessage(projectId, messageResponse);
+        global.chatWebSocketService.broadcastNewMessage(projectId, messageResponse);
       }
 
       res.status(201).json({
@@ -195,7 +195,7 @@ export class ChatController {
 
       // Broadcast message deletion via WebSocket
       if (global.chatWebSocketService) {
-        await global.chatWebSocketService.broadcastMessageDeleted(projectId, messageId);
+        global.chatWebSocketService.broadcastMessageDeleted(projectId, messageId);
       }
 
       res.status(200).json({

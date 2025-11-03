@@ -20,7 +20,7 @@ export class MediaController {
 
       const user = req.user!;
       const sanitizedFilePath = sanitizeInput(req.file.path);
-      const image = await MediaService.saveImage(
+      const image = MediaService.saveImage(
         sanitizedFilePath,
         user._id.toString()
       );

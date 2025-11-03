@@ -16,7 +16,7 @@ interface TokenPayload {
 }
 
 // Helper function to verify JWT token
-async function verifySocketToken(token: string): Promise<TokenPayload> {
+function verifySocketToken(token: string): TokenPayload {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as TokenPayload;
     return decoded;
@@ -52,7 +52,7 @@ export class ChatWebSocketService {
           return next(new Error('Authentication error'));
         }
 
-        const decoded = await verifySocketToken(token);
+        const decoded = verifySocketToken(token);
         socket.userId = decoded.id;
         logger.info(`Socket authenticated for user: ${socket.userId}`);
         next();
@@ -68,7 +68,7 @@ export class ChatWebSocketService {
       logger.info(`User ${socket.userId} connected to chat WebSocket`);
 
       // Join a project room
-      socket.on('join_project', async (projectId: string) => {
+      socket.on('join_project', (projectId: string) => {
         try {
           logger.info(`User ${socket.userId} attempting to join project ${projectId}`);
           
@@ -89,7 +89,7 @@ export class ChatWebSocketService {
       });
 
       // Leave a project room
-      socket.on('leave_project', async (projectId: string) => {
+      socket.on('leave_project', (projectId: string) => {
         try {
           logger.info(`User ${socket.userId} leaving project ${projectId}`);
           socket.leave(`project_${projectId}`);
@@ -108,7 +108,7 @@ export class ChatWebSocketService {
   }
 
   // Broadcast a new message to all users in the project
-  public async broadcastNewMessage(projectId: string, message: any) {
+  public broadcastNewMessage(projectId: string, message: any): void {
     try {
       logger.info(`Broadcasting new message to project: ${projectId}`);
       this.io.to(`project_${projectId}`).emit('new_message', message);
@@ -119,7 +119,7 @@ export class ChatWebSocketService {
   }
 
   // Broadcast message deletion
-  public async broadcastMessageDeleted(projectId: string, messageId: string) {
+  public broadcastMessageDeleted(projectId: string, messageId: string): void {
     try {
       logger.info(`Broadcasting message deletion: ${messageId} to project: ${projectId}`);
       this.io.to(`project_${projectId}`).emit('message_deleted', { messageId });
