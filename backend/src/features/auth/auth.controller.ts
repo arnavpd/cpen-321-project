@@ -25,7 +25,7 @@ export class AuthController {
       }
 
       const { idToken } = validationResult.data;
-      const idTokenString: string = String(idToken);
+      const idTokenString = String(idToken);
       const data = await authService.signUpWithGoogle(idTokenString);
 
       return res.status(201).json({
@@ -75,7 +75,7 @@ export class AuthController {
       }
 
       const { idToken } = validationResult.data;
-      const idTokenString: string = String(idToken);
+      const idTokenString = String(idToken);
       const data = await authService.signInWithGoogle(idTokenString);
 
       logger.info('🔑 USER LOGGED IN - JWT TOKEN:', data.token);

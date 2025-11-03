@@ -114,7 +114,7 @@ export class ChatWebSocketService {
   }
 
   // Broadcast a new message to all users in the project
-  public broadcastNewMessage(projectId: string, message: any): void {
+  public broadcastNewMessage(projectId: string, message: unknown): void {
     try {
       logger.info(`Broadcasting new message to project: ${projectId}`);
       this.io.to(`project_${projectId}`).emit('new_message', message);
