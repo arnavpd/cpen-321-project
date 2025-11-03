@@ -17,8 +17,13 @@ interface TokenPayload {
 
 // Helper function to verify JWT token
 function verifySocketToken(token: string): TokenPayload {
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret || typeof jwtSecret !== 'string') {
+    throw new Error('JWT_SECRET not configured');
+  }
+
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as TokenPayload;
+    const decoded = jwt.verify(token, jwtSecret) as TokenPayload;
     return decoded;
   } catch (error) {
     throw new Error('Invalid token');
@@ -43,15 +48,18 @@ export class ChatWebSocketService {
   }
 
   private setupMiddleware() {
-    this.io.use(async (socket: AuthenticatedSocket, next) => {
+    this.io.use((socket: AuthenticatedSocket, next) => {
       try {
-        const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.replace('Bearer ', '');
+        const authToken = socket.handshake.auth.token;
+        const headerAuth = socket.handshake.headers.authorization;
+        const rawToken = authToken || (typeof headerAuth === 'string' ? headerAuth.replace('Bearer ', '') : undefined);
         
-        if (!token) {
+        if (!rawToken || typeof rawToken !== 'string') {
           logger.warn('Socket connection attempted without token');
           return next(new Error('Authentication error'));
         }
 
+        const token: string = rawToken;
         const decoded = verifySocketToken(token);
         socket.userId = decoded.id;
         logger.info(`Socket authenticated for user: ${socket.userId}`);
