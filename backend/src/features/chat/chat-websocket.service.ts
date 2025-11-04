@@ -1,10 +1,7 @@
 import { Server as HTTPServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import logger from '../../utils/logger.util';
-import { chatMessageModel } from './chatMessage.model';
-import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
-import { userModel } from '../users/user.model';
 
 interface AuthenticatedSocket extends Socket {
   userId?: string;
@@ -16,9 +13,14 @@ interface TokenPayload {
 }
 
 // Helper function to verify JWT token
-async function verifySocketToken(token: string): Promise<TokenPayload> {
+function verifySocketToken(token: string): TokenPayload {
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret || typeof jwtSecret !== 'string') {
+    throw new Error('JWT_SECRET not configured');
+  }
+
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as TokenPayload;
+    const decoded = jwt.verify(token, jwtSecret) as TokenPayload;
     return decoded;
   } catch (error) {
     throw new Error('Invalid token');
@@ -43,16 +45,20 @@ export class ChatWebSocketService {
   }
 
   private setupMiddleware() {
-    this.io.use(async (socket: AuthenticatedSocket, next) => {
+    this.io.use((socket: AuthenticatedSocket, next) => {
       try {
-        const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.replace('Bearer ', '');
+        const authToken = socket.handshake.auth.token;
+        const headerAuth = socket.handshake.headers.authorization;
+        const rawToken = authToken || (typeof headerAuth === 'string' ? headerAuth.replace('Bearer ', '') : undefined);
         
-        if (!token) {
+        if (!rawToken || typeof rawToken !== 'string') {
           logger.warn('Socket connection attempted without token');
-          return next(new Error('Authentication error'));
+          next(new Error('Authentication error'));
+          return;
         }
 
-        const decoded = await verifySocketToken(token);
+        const token: string = rawToken;
+        const decoded = verifySocketToken(token);
         socket.userId = decoded.id;
         logger.info(`Socket authenticated for user: ${socket.userId}`);
         next();
@@ -68,7 +74,7 @@ export class ChatWebSocketService {
       logger.info(`User ${socket.userId} connected to chat WebSocket`);
 
       // Join a project room
-      socket.on('join_project', async (projectId: string) => {
+      socket.on('join_project', (projectId: string) => {
         try {
           logger.info(`User ${socket.userId} attempting to join project ${projectId}`);
           
@@ -89,7 +95,7 @@ export class ChatWebSocketService {
       });
 
       // Leave a project room
-      socket.on('leave_project', async (projectId: string) => {
+      socket.on('leave_project', (projectId: string) => {
         try {
           logger.info(`User ${socket.userId} leaving project ${projectId}`);
           socket.leave(`project_${projectId}`);
@@ -108,7 +114,7 @@ export class ChatWebSocketService {
   }
 
   // Broadcast a new message to all users in the project
-  public async broadcastNewMessage(projectId: string, message: any) {
+  public broadcastNewMessage(projectId: string, message: unknown): void {
     try {
       logger.info(`Broadcasting new message to project: ${projectId}`);
       this.io.to(`project_${projectId}`).emit('new_message', message);
@@ -119,7 +125,7 @@ export class ChatWebSocketService {
   }
 
   // Broadcast message deletion
-  public async broadcastMessageDeleted(projectId: string, messageId: string) {
+  public broadcastMessageDeleted(projectId: string, messageId: string): void {
     try {
       logger.info(`Broadcasting message deletion: ${messageId} to project: ${projectId}`);
       this.io.to(`project_${projectId}`).emit('message_deleted', { messageId });
