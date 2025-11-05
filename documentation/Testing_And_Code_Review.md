@@ -284,7 +284,7 @@ tests can be ran with `npm test` within the `/backend` directory
 
 ### 5.1. Commit Hash Where Codacy Ran
 
-`[Insert Commit SHA here]`
+`3db326b1b11a86b8aeef9616465dd08b143155eb`
 
 ### 5.2. Unfixed Issues per Codacy Category
 
