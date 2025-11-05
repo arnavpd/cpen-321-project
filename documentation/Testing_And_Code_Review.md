@@ -248,20 +248,19 @@ tests can be ran with `npm test` within the `/backend` directory
   - **Expected Behaviors:**
     | **Scenario Steps** | **Test Case Steps** |
     | ------------------ | ------------------- |
-    | 1. The user opens an existing project | • Click on "Test1" project to open project screen. |
-    | 2. The app displays a "Task Board" button which the user clicks | • Check button labelled "Task Board" is present on screen.<br>• Click button labelled "Task Board". |
-    | 3. The app displays a "Create Task" button which the user clicks | • Check button labelled "Create Task" is present on screen.<br>• Click button labelled "Create Task". |
-    | 4. The app displays an "Create New Task" form | • Check "Create New Task" form is present on screen. |
-    | 5a. The user inputs an empty task name | • Select "Arnav Prasad" under "Assignee" dropdown.<br>• Select "TODAY_DATE" under "Deadline".<br>• Select "In progress" under "Status" dropdown.<br>• Click "Create" button. |
-    | 5a1. The app displays an error message prompting the user to input a non empty task | • Check dialog is opened with text: "Task name cannot be empty". |
-    | 5b. The user does not select an "Assignee" | • Input "Task1" under "Task Name".<br>• Select "TODAY_DATE" under "Deadline".<br>• Select "In progress" under "Status" dropdown.<br>• Click "Create" button. |
-    | 5b1. The app displays an error message prompting the user to input a non empty Assignee | • Check dialog is opened with text: "Assignee cannot be empty". |
-    | 5c. The user selects a date that has already passed | • Input "Task1" under "Task Name".<br>• Select "Arnav Prasad" under "Assignee" dropdown.<br>• Select "In progress" under "Status" dropdown.<br>• Select "TODAY_DATE - 1" under "Deadline".<br>• Click "Create" button. |
-    | 5c1. The app displays an error message prompting the user to input a future date | • Check dialog is opened with text: "Please enter a future date". |
-    | 5. The user inputs valid inputs | • Input "TaskRandomNumber" under "Task Name".<br>• Select "Arnav Prasad" under "Assignee" dropdown.<br>• Select "In progress" under "Status" dropdown.<br>• Select "TODAY_DATE" under "Deadline". |
-    | 6. The user clicks the "Create" button | • Click "Create" button. |
-    | 7. The user can view the new task | • Check the Task Name "TaskRandomNumber" is present on screen.<br>• Check the Assignee "Arnav Prasad" is present on screen.<br>• Check the date "TODAY_DATE" is present on screen.<br>• Check the status "In progress" is present on screen. |
-
+    | 1. The user opens an existing project | Click on "Test1" project to open project screen. |
+    | 2. The app displays a "Task Board" button which the user clicks | Check button labelled "Task Board" is present on screen.<br>Click button labelled "Task Board". |
+    | 3. The app displays a "Create Task" button which the user clicks | Check button labelled "Create Task" is present on screen.<br>Click button labelled "Create Task". |
+    | 4. The app displays an "Create New Task" form | Check "Create New Task" form is present on screen. |
+    | 5a. The user inputs an empty task name | Select "Arnav Prasad" under "Assignee" dropdown.<br>Select "TODAY_DATE" under "Deadline".<br>Select "In progress" under "Status" dropdown.<br>Click "Create" button. |
+    | 5a1. The app displays an error message prompting the user to input a non empty task | Check dialog is opened with text: "Task name cannot be empty". |
+    | 5b. The user does not select an "Assignee" | Input "Task1" under "Task Name".<br>Select "TODAY_DATE" under "Deadline".<br>Select "In progress" under "Status" dropdown.<br>Click "Create" button. |
+    | 5b1. The app displays an error message prompting the user to input a non empty Assignee | Check dialog is opened with text: "Assignee cannot be empty". |
+    | 5c. The user selects a date that has already passed | Input "Task1" under "Task Name".<br>Select "Arnav Prasad" under "Assignee" dropdown.<br>Select "In progress" under "Status" dropdown.<br>Select "TODAY_DATE - 1" under "Deadline".<br>Click "Create" button. |
+    | 5c1. The app displays an error message prompting the user to input a future date | Check dialog is opened with text: "Please enter a future date". |
+    | 5. The user inputs valid inputs | Input "TaskRandomNumber" under "Task Name".<br>Select "Arnav Prasad" under "Assignee" dropdown.<br>Select "In progress" under "Status" dropdown.<br>Select "TODAY_DATE" under "Deadline". |
+    | 6. The user clicks the "Create" button | Click "Create" button. |
+    | 7. The user can view the new task | Check the Task Name "TaskRandomNumber" is present on screen.<br>Check the Assignee "Arnav Prasad" is present on screen.<br>Check the date "TODAY_DATE" is present on screen.<br>Check the status "In progress" is present on screen. |
 
   - **Test Logs:**
     ```
