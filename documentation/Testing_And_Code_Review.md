@@ -103,16 +103,16 @@ tests can be ran with `npm test` within the `/backend` directory
 
 ### 2.3. Jest Coverage Report Screenshots for Tests Without Mocking
 
-  ![unmocked](\images\jest_unmocked.png)
+  ![unmocked](./images/jest_unmocked.png)
 
 
 ### 2.4. Jest Coverage Report Screenshots for Tests With Mocking
 
-  ![mocked](\images\jest_mocked.png)
+  ![mocked](./images/jest_mocked.png)
 
 ### 2.5. Jest Coverage Report Screenshots for Both Tests With and Without Mocking
 
-  ![both](\images\jest_both.png)
+  ![both](./images/jest_both.png)
 
 ---
 
@@ -203,8 +203,8 @@ tests can be ran with `npm test` within the `/backend` directory
     Note: This test currently fails because the invite users page has not been implemented yet.
     Test execution requires completion of the user invitation feature.
     ```
-    ![create_project](\images\create_project.png)
-    ![invitation failed](\images\invite_failed.png)
+    ![create_project](./images/create_project.png)
+    ![invitation failed](./images/invite_failed.png)
 
 
 - **Use Case: Adding Project Expenses (Use Case 4)**
@@ -240,8 +240,8 @@ tests can be ran with `npm test` within the `/backend` directory
     BUILD SUCCESSFUL in 56s
     72 actionable tasks: 1 executed, 71 up-to-date
     ```
-    ![add_expense test execution logs)](\images\add_expense_1.png)
-    ![add_expense test execution logs)](\images\add_expense.png)
+    ![add_expense test execution logs)](./images/add_expense_1.png)
+    ![add_expense test execution logs)](./images/add_expense.png)
 
 - **Use Case: Creating/Assigning Project Tasks and Deadlines to Group Members (Use Case 5)**
 
@@ -274,8 +274,8 @@ tests can be ran with `npm test` within the `/backend` directory
     BUILD SUCCESSFUL in 57s
     72 actionable tasks: 1 executed, 71 up-to-date
     ```
-    ![create_task test execution logs2](\images\create_task_1.png)
-    ![create_task test execution logs](\images\create_task.png)
+    ![create_task test execution logs2](./images/create_task_1.png)
+    ![create_task test execution logs](./images/create_task.png)
 
 ---
 
@@ -287,7 +287,7 @@ tests can be ran with `npm test` within the `/backend` directory
 
 ### 5.2. Unfixed Issues per Codacy Category
 
-   ![codacy no issues](\images\codacy_no_issues.png)
+   ![codacy no issues](./images/codacy_no_issues.png)
 
 ### 5.3. Unfixed Issues per Codacy Code Pattern
 
