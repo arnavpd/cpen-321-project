@@ -173,7 +173,10 @@ tests can be ran with `npm test` within the `/backend` directory
 ---
 
 ## 4. Front-end Test Specification
-
+**Front-end Test Prerequisites:**
+1. Ensure that a user was previously signed into the app with Google (the tests click the first email after clicking "Sign In With Google"
+2. Ensure that a project named "Test1" was previously created (this project name is utilized in tests)
+3. Ensure that your "Name" under "Manage Profile" is "Test User" (this name is utilized in tests)
 ### 4.1. Location in Git of Front-end Test Suite:
 
 `cpen-321-project\frontend\app\src\androidTest\java\com\cpen321\usermanagement\MyComposeTest.kt`
