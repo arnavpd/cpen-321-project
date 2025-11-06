@@ -71,7 +71,7 @@ class MyComposeTest {
 
         // After sign-in, a Skip button appears in-app; click it
         // Wait a bit for the app to return from system UI
-        Thread.sleep(2_000)
+        Thread.sleep(10_000)
         
         composeTestRule.waitUntil(timeoutMillis = 10_000) {
             try {
@@ -177,7 +177,7 @@ class MyComposeTest {
         composeTestRule.onNode(isPopup()).assertExists()
 
         composeTestRule
-            .onNode(hasText("Arnav Prasad") and hasAnyAncestor(isPopup()))
+            .onNode(hasText("Test User") and hasAnyAncestor(isPopup()))
             .assertIsDisplayed()
             .performClick()
 
@@ -187,7 +187,7 @@ class MyComposeTest {
         // Assert the button shows the selection (merged semantics)
         composeTestRule
             .onNode(
-                hasText("Arnav Prasad") and
+                hasText("Test User") and
                         hasClickAction() and
                         !hasAnyAncestor(isPopup())
             )
@@ -196,13 +196,13 @@ class MyComposeTest {
         // Tick the split checkbox (same as you had)
         composeTestRule.onNode(
             isToggleable() and
-                    hasParent(hasAnyDescendant(hasText("Arnav Prasad"))) and
+                    hasParent(hasAnyDescendant(hasText("Test User"))) and
                     !hasAnyAncestor(isPopup())
         ).assertExists().performClick()
 
         composeTestRule.onNode(
             isToggleable() and
-                    hasParent(hasAnyDescendant(hasText("Arnav Prasad"))) and
+                    hasParent(hasAnyDescendant(hasText("Test User"))) and
                     !hasAnyAncestor(isPopup())
         ).assertIsOn()
 
@@ -301,10 +301,10 @@ class MyComposeTest {
                         hasAnyDescendant(hasText(coreAmount, substring = true, ignoreCase = false))
             ) and !hasAnyAncestor(isDialog())
 
-        // Wait until the two "Arnav Prasad" occurrences that belong to THIS row appear
+        // Wait until the two "Test User" occurrences that belong to THIS row appear
         composeTestRule.waitUntil(timeoutMillis = 10_000) {
             val countInRow = composeTestRule.onAllNodes(
-                hasText("Arnav Prasad") and rowScope,
+                hasText("Test User") and rowScope,
                 useUnmergedTree = true
             ).fetchSemanticsNodes().size
             countInRow >= 2
@@ -373,9 +373,9 @@ class MyComposeTest {
         // Wait for the popup to appear
         composeTestRule.onNode(isPopup()).assertExists()
 
-        // Click "Arnav Prasad (Me)" inside the popup
+        // Click "Test User (Me)" inside the popup
         composeTestRule
-            .onNode(hasText("Arnav Prasad (Me)") and hasAnyAncestor(isPopup()))
+            .onNode(hasText("Test User (Me)") and hasAnyAncestor(isPopup()))
             .assertIsDisplayed()
             .performClick()
 
@@ -385,7 +385,7 @@ class MyComposeTest {
         // Assert the button shows the selection
         composeTestRule
             .onNode(
-                hasText("Arnav Prasad (Me)") and
+                hasText("Test User (Me)") and
                         hasClickAction() and
                         !hasAnyAncestor(isPopup())
             )
@@ -540,9 +540,9 @@ class MyComposeTest {
         // Wait for the popup to appear
         composeTestRule.onNode(isPopup()).assertExists()
 
-        // Click "Arnav Prasad (Me)" inside the popup
+        // Click "Test User (Me)" inside the popup
         composeTestRule
-            .onNode(hasText("Arnav Prasad (Me)") and hasAnyAncestor(isPopup()))
+            .onNode(hasText("Test User (Me)") and hasAnyAncestor(isPopup()))
             .assertIsDisplayed()
             .performClick()
 
@@ -552,7 +552,7 @@ class MyComposeTest {
         // Assert the button shows the selection
         composeTestRule
             .onNode(
-                hasText("Arnav Prasad (Me)") and
+                hasText("Test User (Me)") and
                         hasClickAction() and
                         !hasAnyAncestor(isPopup())
             )
@@ -642,9 +642,9 @@ class MyComposeTest {
         // Wait for the popup to appear
         composeTestRule.onNode(isPopup()).assertExists()
 
-        // Click "Arnav Prasad (Me)" inside the popup
+        // Click "Test User (Me)" inside the popup
         composeTestRule
-            .onNode(hasText("Arnav Prasad (Me)") and hasAnyAncestor(isPopup()))
+            .onNode(hasText("Test User (Me)") and hasAnyAncestor(isPopup()))
             .assertIsDisplayed()
             .performClick()
 
@@ -654,7 +654,7 @@ class MyComposeTest {
         // Assert the button shows the selection
         composeTestRule
             .onNode(
-                hasText("Arnav Prasad (Me)") and
+                hasText("Test User (Me)") and
                         hasClickAction() and
                         !hasAnyAncestor(isPopup())
             )
@@ -730,7 +730,7 @@ class MyComposeTest {
         composeTestRule.waitUntil(timeoutMillis = 3_000) {
             runCatching {
                 composeTestRule.onAllNodes(
-                    hasText("Arnav Prasad (Me)", substring = true, ignoreCase = false) and
+                    hasText("Test User (Me)", substring = true, ignoreCase = false) and
                             !hasAnyAncestor(isDialog()),
                     useUnmergedTree = true
                 ).fetchSemanticsNodes().isNotEmpty()
@@ -849,7 +849,63 @@ class MyComposeTest {
         composeTestRule.onNodeWithText(randomProjectName, ignoreCase = true)
             .assertIsDisplayed()
 
-        Thread.sleep(10_000)
+        // Delete project
+
+        composeTestRule.onNodeWithText(randomProjectName, ignoreCase = true)
+            .performClick()
+
+        composeTestRule.onNodeWithText("Project Settings", ignoreCase = true)
+            .assertIsDisplayed()
+
+        composeTestRule.onNodeWithText("Project Settings", ignoreCase = true)
+            .performClick()
+
+        // Wait for Project Settings page to load
+        composeTestRule.waitUntil(timeoutMillis = 5_000) {
+            try {
+                composeTestRule.onNodeWithText("Delete Project", ignoreCase = true)
+                    .assertIsDisplayed()
+                true
+            } catch (e: Exception) {
+                false
+            }
+        }
+
+        // Click the "Delete" button (not the "Delete Project" text label)
+        // The button has text "Delete" and hasClickAction(), while the label is just text
+        composeTestRule.onNode(
+            hasText("Delete", substring = false, ignoreCase = true) and
+                    hasClickAction()
+        ).assertIsDisplayed()
+            .performClick()
+
+        // Wait for confirmation dialog to appear
+        composeTestRule.waitUntil(timeoutMillis = 5_000) {
+            try {
+                composeTestRule.onNode(
+                    hasText("Delete Project", ignoreCase = true) and
+                            hasAnyAncestor(isDialog())
+                ).assertIsDisplayed()
+                true
+            } catch (e: Exception) {
+                false
+            }
+        }
+
+        // Click the "Delete" button in the confirmation dialog
+        composeTestRule.onNode(
+            hasText("Delete", substring = false, ignoreCase = true) and
+                    hasClickAction() and
+                    hasAnyAncestor(isDialog())
+        ).assertIsDisplayed()
+            .performClick()
+
+        // Wait for project deletion to complete and navigation back
+        Thread.sleep(2_000)
+
+        // Verify that the deleted project is no longer displayed on the page
+        composeTestRule.onNodeWithText(randomProjectName, ignoreCase = true)
+            .assertDoesNotExist()
     }
 }
 
