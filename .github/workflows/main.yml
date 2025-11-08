@@ -11,6 +11,21 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    
+    services:
+      mongodb:
+        image: mongo:7.0
+        env:
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: password
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ping: 1})'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -36,8 +51,8 @@ jobs:
         run: |
           cd backend
           cat > .env.test <<EOF
-          PORT=${{ secrets.PROD_PORT }}
-          MONGODB_URI=${{ secrets.PROD_MONGODB_URI }}
+          PORT=3001
+          MONGODB_URI=mongodb://root:password@localhost:27017/test_db?authSource=admin
           GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
           JWT_SECRET=${{ secrets.JWT_SECRET }}
           GOOGLE_CALENDAR_REDIRECT_URI=${{ secrets.GOOGLE_CALENDAR_REDIRECT_URI }}
@@ -45,10 +60,28 @@ jobs:
           GOOGLE_CALENDAR_API_KEY=${{ secrets.GOOGLE_CALENDAR_API_KEY }}
           EOF
 
+      - name: Wait for MongoDB to be ready
+        run: |
+          echo "Waiting for MongoDB to be ready..."
+          for i in {1..30}; do
+            if mongosh --host localhost:27017 --username root --password password --authenticationDatabase admin --eval "db.adminCommand('ping')" --quiet; then
+              echo "MongoDB is ready!"
+              break
+            fi
+            echo "Attempt $i: MongoDB not ready yet, waiting..."
+            sleep 2
+          done
+          
+          # Verify MongoDB is accessible with our connection string
+          mongosh "mongodb://root:password@localhost:27017/test_db?authSource=admin" --eval "db.runCommand({ping: 1})" --quiet
+
       - name: Run backend tests
         run: |
           cd backend
           npm test
+        timeout-minutes: 10
+        env:
+          CI: true
 
   deploy:
     runs-on: ubuntu-latest
