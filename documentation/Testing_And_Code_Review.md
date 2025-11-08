@@ -99,7 +99,7 @@ tests can be ran with `npm test` within the `/backend` directory
 
 ### 2.2. GitHub Actions Configuration Location
 
-`~/.github/workflows/backend-tests.yml`
+`~/.github/workflows/main.yml`
 
 ### 2.3. Jest Coverage Report Screenshots for Tests Without Mocking
 

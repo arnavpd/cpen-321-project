@@ -1,13 +1,54 @@
-name: Deploy to EC2
+name: CI/CD Pipeline and EC2 Deployment
 
 on:
   push:
     branches:
+      - "*"  
+  pull_request:
+    branches:
       - main
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm ci
+
+      - name: Create test environment file
+        run: |
+          cd backend
+          cat > .env.test <<EOF
+          PORT=${{ secrets.PROD_PORT }}
+          MONGODB_URI=${{ secrets.PROD_MONGODB_URI }}
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          GOOGLE_CALENDAR_REDIRECT_URI=${{ secrets.GOOGLE_CALENDAR_REDIRECT_URI }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_CALENDAR_API_KEY=${{ secrets.GOOGLE_CALENDAR_API_KEY }}
+          EOF
+
+      - name: Run backend tests
+        run: |
+          cd backend
+          npm test
+
   deploy:
     runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout
         uses: actions/checkout@v3

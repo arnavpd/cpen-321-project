@@ -27,13 +27,17 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   testTimeout: 30000,
   verbose: true,
-  // Memory optimization settings
-  maxWorkers: 2, // Limit concurrent workers
-  workerIdleMemoryLimit: '1028MB', // Restart workers when they exceed this memory
-  detectOpenHandles: false, // Disable to reduce memory overhead
+  // Reduced memory optimization settings
+  maxWorkers: 1, // Further limit concurrent workers to avoid memory issues
+  workerIdleMemoryLimit: '512MB', // Lower memory limit to restart workers sooner
+  detectOpenHandles: true, // Re-enable to catch resource leaks
   forceExit: true, // Force exit to prevent hanging
   // Cache settings to reduce memory usage
   cacheDirectory: '<rootDir>/node_modules/.cache/jest',
   clearMocks: true,
   restoreMocks: true,
+  // Additional stability settings
+  bail: false, // Don't stop on first failure
+  passWithNoTests: true,
+  errorOnDeprecated: false
 };

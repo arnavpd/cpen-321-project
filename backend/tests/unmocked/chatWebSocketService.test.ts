@@ -25,10 +25,23 @@ describe('Unmocked: Chat WebSocket Service', () => {
   });
 
   afterAll(async () => {
-    // Clean up
+    // Clean up WebSocket and HTTP server
     try {
-      if (httpServer) {
-        httpServer.close();
+      const io = chatWebSocketService?.getIO();
+      if (io) {
+        // Close all socket connections
+        io.disconnectSockets(true);
+        io.close();
+      }
+    } catch (err) {
+      // ignore cleanup errors
+    }
+
+    try {
+      if (httpServer && httpServer.listening) {
+        await new Promise<void>((resolve) => {
+          httpServer.close(() => resolve());
+        });
       }
     } catch (err) {
       // ignore cleanup errors
@@ -42,7 +55,7 @@ describe('Unmocked: Chat WebSocket Service', () => {
     expect(typeof chatWebSocketService.broadcastMessageDeleted).toBe('function');
   });
 
-  test('should broadcast new message without errors', async () => {
+  test('should broadcast new message without errors', () => {
     const testMessage = {
       _id: 'test_msg_123',
       content: 'Test broadcast message',
@@ -56,17 +69,19 @@ describe('Unmocked: Chat WebSocket Service', () => {
     const projectId = 'test_project_123';
 
     // This should not throw an error
-    await expect(chatWebSocketService.broadcastNewMessage(projectId, testMessage))
-      .resolves.not.toThrow();
+    expect(() => {
+      chatWebSocketService.broadcastNewMessage(projectId, testMessage);
+    }).not.toThrow();
   });
 
-  test('should broadcast message deletion without errors', async () => {
+  test('should broadcast message deletion without errors', () => {
     const projectId = 'test_project_456';
     const messageId = 'msg_to_delete_123';
 
     // This should not throw an error
-    await expect(chatWebSocketService.broadcastMessageDeleted(projectId, messageId))
-      .resolves.not.toThrow();
+    expect(() => {
+      chatWebSocketService.broadcastMessageDeleted(projectId, messageId);
+    }).not.toThrow();
   });
 
   test('should verify JWT token validation works', async () => {
@@ -90,7 +105,7 @@ describe('Unmocked: Chat WebSocket Service', () => {
     expect(typeof io.use).toBe('function');
   });
 
-  test('should handle broadcast operations with various project IDs', async () => {
+  test('should handle broadcast operations with various project IDs', () => {
     const testCases = [
       'project_123',
       'project_with_special_chars_!@#',
@@ -107,11 +122,13 @@ describe('Unmocked: Chat WebSocket Service', () => {
     };
 
     for (const projectId of testCases) {
-      await expect(chatWebSocketService.broadcastNewMessage(projectId, testMessage))
-        .resolves.not.toThrow();
+      expect(() => {
+        chatWebSocketService.broadcastNewMessage(projectId, testMessage);
+      }).not.toThrow();
       
-      await expect(chatWebSocketService.broadcastMessageDeleted(projectId, 'msg_789'))
-        .resolves.not.toThrow();
+      expect(() => {
+        chatWebSocketService.broadcastMessageDeleted(projectId, 'msg_789');
+      }).not.toThrow();
     }
   });
 });
