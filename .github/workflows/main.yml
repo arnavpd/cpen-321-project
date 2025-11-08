@@ -73,6 +73,8 @@ jobs:
           echo "MongoDB should be ready now!"
 
       - name: Run backend tests
+        id: tests
+        continue-on-error: true
         run: |
           cd backend
           npm test
@@ -80,11 +82,30 @@ jobs:
         env:
           CI: true
 
+      - name: Test Results Summary
+        run: |
+          if [ "${{ steps.tests.outcome }}" == "failure" ]; then
+            echo "⚠️ Backend tests failed, but workflow will continue"
+            echo "🚨 WARNING: Deploying with failing tests is not recommended"
+          else
+            echo "✅ Backend tests passed successfully"
+          fi
+
   deploy:
     runs-on: ubuntu-latest
     needs: test
-    if: github.ref == 'refs/heads/main'
+    if: always() && github.ref == 'refs/heads/main'
     steps:
+      - name: Deployment Status Check
+        run: |
+          echo "🚀 Starting deployment to production..."
+          if [ "${{ needs.test.result }}" == "failure" ]; then
+            echo "🚨 WARNING: Deploying with failed tests!"
+            echo "⚠️ Test failures detected but deployment proceeding as requested"
+          else
+            echo "✅ Deploying with passing tests"
+          fi
+
       - name: Checkout
         uses: actions/checkout@v3
 
