@@ -9,10 +9,11 @@ export const connectTestDB = async (): Promise<void> => {
     const connectionOptions = {
       serverSelectionTimeoutMS: process.env.CI ? 15000 : 5000, // Longer timeout in CI
       socketTimeoutMS: process.env.CI ? 15000 : 0,
-      bufferMaxEntries: 0, // Disable mongoose buffering
-      bufferCommands: false, // Disable mongoose buffering
       maxPoolSize: process.env.CI ? 5 : 10, // Smaller pool in CI
     };
+
+    // Set Mongoose-specific options for better CI performance
+    mongoose.set('bufferCommands', false);
 
     console.log(`🔄 Connecting to test MongoDB: ${uri.replace(/\/\/.*@/, '//***:***@')}`);
     
