@@ -63,17 +63,14 @@ jobs:
       - name: Wait for MongoDB to be ready
         run: |
           echo "Waiting for MongoDB to be ready..."
-          for i in {1..30}; do
-            if mongosh --host localhost:27017 --username root --password password --authenticationDatabase admin --eval "db.adminCommand('ping')" --quiet; then
-              echo "MongoDB is ready!"
-              break
-            fi
-            echo "Attempt $i: MongoDB not ready yet, waiting..."
-            sleep 2
-          done
+          # Wait for MongoDB service to be healthy and port to be accessible
+          timeout 60s bash -c 'until nc -z localhost 27017; do echo "Waiting for MongoDB port..."; sleep 2; done'
+          echo "MongoDB port is accessible!"
           
-          # Verify MongoDB is accessible with our connection string
-          mongosh "mongodb://root:password@localhost:27017/test_db?authSource=admin" --eval "db.runCommand({ping: 1})" --quiet
+          # Give MongoDB additional time to fully initialize authentication
+          echo "Allowing time for MongoDB authentication setup..."
+          sleep 10
+          echo "MongoDB should be ready now!"
 
       - name: Run backend tests
         run: |
