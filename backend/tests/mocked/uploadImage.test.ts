@@ -60,7 +60,7 @@ describe('Mocked: POST /api/media/upload', () => {
     it('should upload image successfully', async () => {
       // Arrange
       const savedImagePath = '/uploads/images/test-user-id-123-1234567890.png';
-      (MediaService.saveImage as jest.Mock).mockResolvedValue(savedImagePath);
+      (MediaService.saveImage as jest.Mock).mockReturnValue(savedImagePath);
 
       // Act
       await mediaController.uploadImage(
@@ -85,7 +85,7 @@ describe('Mocked: POST /api/media/upload', () => {
       const jpgFile = { ...mockFile, path: '/uploads/temp/test.jpg', originalname: 'test.jpg' };
       mockRequest.file = jpgFile;
       const savedPath = '/uploads/images/test-user-id-123-1234567890.jpg';
-      (MediaService.saveImage as jest.Mock).mockResolvedValue(savedPath);
+      (MediaService.saveImage as jest.Mock).mockReturnValue(savedPath);
 
       // Act
       await mediaController.uploadImage(
@@ -149,7 +149,9 @@ describe('Mocked: POST /api/media/upload', () => {
     it('should handle MediaService.saveImage errors', async () => {
       // Arrange
       const errorMessage = 'Failed to save image to disk';
-      (MediaService.saveImage as jest.Mock).mockRejectedValue(new Error(errorMessage));
+      (MediaService.saveImage as jest.Mock).mockImplementation(() => {
+        throw new Error(errorMessage);
+      });
 
       // Act
       await mediaController.uploadImage(
@@ -170,7 +172,9 @@ describe('Mocked: POST /api/media/upload', () => {
     it('should handle generic errors', async () => {
       // Arrange
       const errorMessage = 'Disk full';
-      (MediaService.saveImage as jest.Mock).mockRejectedValue(new Error(errorMessage));
+      (MediaService.saveImage as jest.Mock).mockImplementation(() => {
+        throw new Error(errorMessage);
+      });
 
       // Act
       await mediaController.uploadImage(
@@ -189,7 +193,9 @@ describe('Mocked: POST /api/media/upload', () => {
     it('should call next for non-Error exceptions', async () => {
       // Arrange
       const nonErrorException = 'String exception';
-      (MediaService.saveImage as jest.Mock).mockRejectedValue(nonErrorException);
+      (MediaService.saveImage as jest.Mock).mockImplementation(() => {
+        throw nonErrorException;
+      });
 
       // Act
       await mediaController.uploadImage(
@@ -206,7 +212,9 @@ describe('Mocked: POST /api/media/upload', () => {
       // Arrange
       const errorWithoutMessage = new Error();
       errorWithoutMessage.message = '';
-      (MediaService.saveImage as jest.Mock).mockRejectedValue(errorWithoutMessage);
+      (MediaService.saveImage as jest.Mock).mockImplementation(() => {
+        throw errorWithoutMessage;
+      });
 
       // Act
       await mediaController.uploadImage(
@@ -229,7 +237,7 @@ describe('Mocked: POST /api/media/upload', () => {
       const specialFile = { ...mockFile, path: '/uploads/temp/test image & symbols!.png' };
       mockRequest.file = specialFile;
       const savedPath = '/uploads/images/test-user-id-123-1234567890.png';
-      (MediaService.saveImage as jest.Mock).mockResolvedValue(savedPath);
+      (MediaService.saveImage as jest.Mock).mockReturnValue(savedPath);
 
       // Act
       await mediaController.uploadImage(
@@ -248,7 +256,7 @@ describe('Mocked: POST /api/media/upload', () => {
       const emptyPathFile = { ...mockFile, path: '' };
       mockRequest.file = emptyPathFile;
       const savedPath = '/uploads/images/test-user-id-123-1234567890.png';
-      (MediaService.saveImage as jest.Mock).mockResolvedValue(savedPath);
+      (MediaService.saveImage as jest.Mock).mockReturnValue(savedPath);
 
       // Act
       await mediaController.uploadImage(
@@ -268,7 +276,7 @@ describe('Mocked: POST /api/media/upload', () => {
       };
       mockRequest.user = userWithObjectId as any;
       const savedPath = '/uploads/images/object-id-string-1234567890.png';
-      (MediaService.saveImage as jest.Mock).mockResolvedValue(savedPath);
+      (MediaService.saveImage as jest.Mock).mockReturnValue(savedPath);
 
       // Act
       await mediaController.uploadImage(

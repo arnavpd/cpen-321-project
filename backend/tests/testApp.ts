@@ -1,6 +1,6 @@
 // Test application setup for unmocked tests
 import express from 'express';
-import { connectDB } from '../src/database/database';
+import { connectTestDB } from './testDatabase';
 import { errorHandler, notFoundHandler } from '../src/middleware/errorHandler.middleware';
 import router from '../src/routes/routes';
 
@@ -17,8 +17,8 @@ export const createTestApp = async () => {
   app.use('*', notFoundHandler);
   app.use(errorHandler);
   
-  // Connect to test database
-  await connectDB();
+  // Connect to test database with CI-optimized settings
+  await connectTestDB();
   
   return app;
 };
