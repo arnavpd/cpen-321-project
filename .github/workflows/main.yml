@@ -25,7 +25,12 @@ jobs:
       - name: Install backend dependencies
         run: |
           cd backend
-          npm ci
+          # Clean install using package-lock.json if it exists and is valid, otherwise use npm install
+          if [ -f "package-lock.json" ]; then
+            npm ci || npm install
+          else
+            npm install
+          fi
 
       - name: Create test environment file
         run: |
