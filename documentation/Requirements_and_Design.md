@@ -10,6 +10,7 @@
 | October 27th, 2026 |3.5. Formal Use Case Specifications (5 Most Major Use Cases)*** | Re-ordered failure scenarios to be chronological |
 | October 27th, 2026 |3.7. Non-Functional Requirements*** | Removed the incorrect/unecesary non-functional requirements and added more detail to the "Usability" use case |
 | October 27th, 2026 |3.2. Use Case Diagram*** | Changed to just be "Project User" and "Project Administrator"  |
+| November 8th, 2025 | 3.5. Formal Use Case Specifications | Added frontend implementation notes for use cases|
 > *** Changes done based on the recommendation of our TA
 
 ---
@@ -121,11 +122,10 @@ Users can chat in real time with project teammates, sending and receiving messag
 **Primary actor(s)**: A new user that wants to sign up for the app.
 
 **Main success scenario**:
-1. The user clicks on the app and sees a Google authentication tab with a Google sign-in button and a "Create a new Google account" button.
-2. User clicks the "Google sign-in" button and is prompted to enter their email and password.
+1. The user clicks on the app and sees a Google authentication tab with a Sign In With Google button and a "Create a new Google account" button.
+2. User clicks the "Sign In With Google" button and is prompted to enter their email and password.
 3. User enters this information and clicks "Next".
 4. User successfully logs in with Google, and lands on the home page.
->MVP Implementation Difference: Steps 5-7 are not implemented. Projects are created immediately after step 4 without an invite page. Users share the generated invitation code manually, and member management occurs after project creation through the Project Settings tab (available only to admins).
 
 **Failure scenario(s)**:
 - 1a. Rate limit
@@ -147,27 +147,31 @@ Users can chat in real time with project teammates, sending and receiving messag
 
 **Main success scenario**:
 1. User opens the app and navigates to the home screen.
-2. User clicks on the "Create Project" button.
-3. A form appears prompting the user to enter the project name and optional project description.
-4. User types in the project name and description in the corresponding text fields and clicks "Submit".
-5. User is taken to an invite page, where they can enter the email addresses of other users they want to invite to the project. Added email addresses by default will be a "Project user", but they can be changed to a "Project Administrator" by clicking the role dropdown next to the corresponding email address.
-6. Once user is done entering all emails and adjusting roles as necessary, user clicks "Send Invites".
-7. User sees a success message confirming the project has been created and that invitations have been sent to the added members.
-8. User is redirected to the home screen, where the newly created project is now visible.
-9. User clicks on the project to view additional details, including project name, members, and tabs for tasks, chat, and expenses (which are initially empty).
->MVP Implementation Difference: Steps 5-7 are not implemented. Projects are created immediately after step 4 without an invite page. Users share the generated invitation code manually, and member management occurs after project creation through the Project Settings tab (available only to admins).
+2. User sees a "Create New Project" button and clicks it.
+3. A "Create New Project" form appears prompting the user to enter the project name and optional project description.
+4. User types in the project name in the corresponding text field.
+5. User clicks "Create" button (which is enabled when project name is not empty).
+6. User is taken to an invite page where they can enter email addresses of other users to invite.
+7. User enters an email address in the "Invite User" input field.
+8. User clicks "Send Invites" button.
+9. User sees a success message: "Users were invited successfully!"
+10. User is redirected to the home screen, where the newly created project is now visible.
+11. User clicks on the project to view additional details, including project name, members, and tabs for tasks, chat, and expenses (which are initially empty).
 
 **Failure scenario(s)**:
 - 1a. User is not signed in
     - 1a1. If the user tries to create a project without being signed in, the app prevents them from continuing
     - 1a2. The app prompts the user to sign in before they can create a project
-- 4a. User enters invalid email
-    - 4a1. User types an email address that is not valid
-    - 4a2. The app shows a warning next to the email address indicating that the email is invalid
-    - 4a3. If the user tries to send an invite with invalid emails, they have the option to select "Ignore Invalid Users" and proceed with the valid ones
-- 6a. Network error
-    - 6a1. If the app cannot connect to the server, it shows an error message letting the user know there is a network issue
-> MVP Implementation Difference: Failure scenario 4a is not implemented because direct email invitation functionality has not been integrated. Users join projects using invitation codes only.
+- 4a. User enters empty project name
+    - 4a1. The "Create" button remains disabled
+    - 4a2. User cannot proceed until a project name is entered
+- 7a. User enters invalid email
+    - 7a1. User types an email address that is not valid (e.g., "test" without @ symbol)
+    - 7a2. User clicks "Send Invites"
+    - 7a3. The app shows a dialog with error message: "Please enter a valid email address"
+- 8a. Network error
+    - 8a1. If the app cannot connect to the server, it shows an error message letting the user know there is a network issue
+> **Current Implementation Status**: The invite page functionality (steps 6-9) is not yet implemented in the frontend. Projects are created immediately after step 5, and users must share the generated invitation code manually. The test for this use case currently fails at the invitation step.
 <a name="uc3"></a>
 
 #### Use Case 3: Communicate/Chat With Group Members in an Existing Project
@@ -179,13 +183,13 @@ Users can chat in real time with project teammates, sending and receiving messag
 **Main success scenario**:
 1. User opens the app.
 2. User selects a specific project from the home screen to enter that project.
-3. Inside the project, user taps on the "Chat" tab to open the chat room.
-4. User types a message in the input field.
-5. If the message is empty, the app shows a warning and prevents sending.
-6. User clicks "Send". A successfully delivered message will have "sent" indicator underneath the last successfully sent message.
-7. All project members see the message immediately and can react or reply.
-8. If there is a network problem, the app displays an error indicating it cannot send the message.
->MVP Implementation Difference: Step 6 is implemented differently. Instead of a "sent" indicator underneath messages, the system displays a loading spinner on the send button during message transmission. Messages appear instantly for all users through WebSocket connections rather than HTTP polling.
+3. Inside the project, user sees and clicks on the "Chat" tab button.
+4. The chat interface opens where user can view previous messages.
+5. User types a message in the input field.
+6. User clicks "Send" button.
+7. A loading spinner appears on the send button during transmission.
+8. The message appears in the chat for all project members immediately via WebSocket connection.
+9. Other project members see the message in real-time and can react or reply.
 
 **Failure scenario(s)**:
 - 6a. Sending too many messages (Rate limit)
@@ -206,23 +210,45 @@ Users can chat in real time with project teammates, sending and receiving messag
 **Main success scenario**:
 1. User is on home page and has already been added to an existing project.
 2. User clicks into the desired project they'd like to manage expenses for.
-3. User taps the "Expense" tab.
-4. User clicks "Add Expense" button.
-5. User enters expense information including amount and description.
-6. User clicks on "Submit".
-7. User gets brought back to the expenses tab.
-8. User views the updated expenses tab which includes the new expense that was just added. Other group members can view the updated expenses on the expenses tab too.
->MVP Implementation Difference: Step 5 includes additional fields not mentioned in the description. Users must select who paid for the expense and use checkboxes to select which members to split the expense between. The expense is automatically split equally among selected members rather than allowing custom split amounts. Step 8 displays expenses in a detailed table format showing description, amount, paid by, split between, and per-person amounts.
+3. User sees and clicks the "Expense" tab button.
+4. The expenses page displays with an "Add Expense" button.
+5. User clicks "Add Expense" button.
+6. An "Add New Expense" form appears on screen.
+7. User inputs expense description in the "Description" text field.
+8. User inputs a valid numeric amount in the "Amount" text field.
+9. User selects who paid for the expense from the "Paid By" dropdown.
+10. User selects which members to split the expense between using checkboxes in the "Split Between" section.
+11. User clicks "Add Expense" button on the form.
+12. User is brought back to the expenses tab.
+13. User views the updated expenses in a detailed table format showing:
+    - Description of the expense
+    - Total amount
+    - Who paid
+    - Who the expense is split between
+    - Per-person amount (automatically calculated as equal split)
+14. Other group members can view the updated expenses on the expenses tab in the same table format.
 
 **Failure scenario(s)**:
 - 1a. User is not authenticated
     - 1a1. System rejects user when the user attempts to add an expense
     - 1a2. System prompts user to sign in again before continuing
-- 5a. Invalid input
-    - 5a1. User adds a non-positive amount or text string
-    - 5a2. System prompts user to input a valid numeric positive amount
-- 6a. Server network error (can't connect to server)
-    - 6a1. System displays an error message to the user indicating it cannot connect to the server
+- 7a. User inputs empty description
+    - 7a1. User clicks "Add Expense" button
+    - 7a2. Dialog opens with error message: "Please fill all fields correctly"
+- 8a. User inputs non-numeric amount
+    - 8a1. User inputs text like "NON_INTEGER" in the amount field
+    - 8a2. User clicks "Add Expense" button
+    - 8a3. Dialog opens with error message: "Please fill all fields correctly"
+- 9a. User does not select who paid
+    - 9a1. User leaves "Paid By" dropdown unselected
+    - 9a2. User clicks "Add Expense" button
+    - 9a3. Dialog opens with error message: "Please fill all fields correctly"
+- 10a. User does not select who to split expense between
+    - 10a1. User does not check any boxes in "Split Between" section
+    - 10a2. User clicks "Add Expense" button
+    - 10a3. Dialog opens with error message: "Please fill all fields correctly"
+- 11a. Server network error (can't connect to server)
+    - 11a1. System displays an error message to the user indicating it cannot connect to the server
 
 <a name="uc5"></a>
 
@@ -234,25 +260,47 @@ Users can chat in real time with project teammates, sending and receiving messag
 
 **Main success scenario**:
 1. User is on home page and has already been added to an existing project.
-2. User clicks on the "Existing Project" button to view this specific project.
-3. User enters the project dashboard that features project details (name, members, chat, expenses, etc.).
-4. User selects the "Add task" button.
-5. User fills in task name and the task description fields, then clicks "Next".
-6. User sees boxes on which group members to assign the task to, and what the deadline is.
-7. User enters this information and clicks on "Submit", and returns back to the project dashboard page.
-8. User clicks on the task board page of the project.
-9. User sees the task board added with a new task, with its corresponding name, description, deadline, and assigned users.
->MVP Implementation Difference: Steps 4-7 are implemented as a single dialog form instead of a two-step process. The "Create Task" button is accessible from the main project view, and users enter task name, select a single assignee from a dropdown (not multiple via checkboxes), choose status from a dropdown, and pick a deadline using a date picker all in one dialog before clicking "Create". Step 2 references an "Existing Project" button that doesn't exist in the implementation. Step 9 displays tasks with color-coded status indicators (green for completed, gold for in progress, purple for backlog, red for blocked, blue for not started) which provides enhanced visual feedback beyond the basic display described.
+2. User clicks on the project to open the project screen.
+3. User sees and clicks the "Task Board" tab button.
+4. The task board displays with a "Create Task" button.
+5. User clicks "Create Task" button.
+6. A "Create New Task" form dialog appears on screen.
+7. User inputs task name in the "Task Name" text field.
+8. User selects a single assignee from the "Assignee" dropdown.
+9. User selects task status from the "Status" dropdown (options: Not started, In progress, Completed, Blocked, Backlog).
+10. User selects a future date using the "Deadline" date picker.
+11. User clicks "Create" button.
+12. User is returned to the task board.
+13. User sees the newly created task displayed with:
+    - Task name
+    - Assigned user
+    - Deadline date
+    - Status with color-coded indicator:
+      - Green for "Completed"
+      - Gold for "In progress"
+      - Purple for "Backlog"
+      - Red for "Blocked"
+      - Blue for "Not started"
+14. Other group members can view the task on their task board with the same information.
 
 **Failure scenario(s)**:
 - 1a. User is not authenticated
     - 1a1. System rejects user when the user attempts to create a task
     - 1a2. System prompts user to sign in again before continuing
-- 7a. Invalid input
-    - 7a1. User adds an invalid date
-    - 7a2. System prompts user to input a valid future date
-- 7b. Server network error (can't connect to server)
-    - 7b1. System displays an error message to the user indicating it cannot connect to the server
+- 7a. User inputs empty task name
+    - 7a1. User leaves "Task Name" field empty
+    - 7a2. User fills other fields and clicks "Create"
+    - 7a3. Dialog opens with error message: "Task name cannot be empty"
+- 8a. User does not select an assignee
+    - 8a1. User leaves "Assignee" dropdown unselected
+    - 8a2. User fills other fields and clicks "Create"
+    - 8a3. Dialog opens with error message: "Assignee cannot be empty"
+- 10a. User selects a past date
+    - 10a1. User selects a date that has already passed using the date picker
+    - 10a2. User fills other fields and clicks "Create"
+    - 10a3. Dialog opens with error message: "Please enter a future date"
+- 11a. Server network error (can't connect to server)
+    - 11a1. System displays an error message to the user indicating it cannot connect to the server
 
 ### **3.6. Screen Mock-ups**
 
