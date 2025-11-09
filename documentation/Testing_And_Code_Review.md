@@ -53,7 +53,7 @@ tests can be ran with `npm test` within the `/backend` directory
 
 #### 2.1.2. Commit Hash Where Tests Run
 
-`[Insert Commit SHA here]`
+`30fc6c4738ccfd3c793189c42fdadc8c9d951840`
 
 #### 2.1.3. Explanation on How to Run the Tests
 
