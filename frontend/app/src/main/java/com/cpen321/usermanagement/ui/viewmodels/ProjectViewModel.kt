@@ -552,17 +552,23 @@ class ProjectViewModel @Inject constructor(
         val selectedProject = _uiState.value.selectedProject
         if (selectedProject != null) {
             Log.d(TAG, "Refreshing selected project: ${selectedProject.name}")
+            val preservedIsAdmin = selectedProject.isAdmin // Preserve isAdmin status
             viewModelScope.launch {
                 projectRepository.getProjectById(selectedProject.id)
                     .onSuccess { updatedProject ->
                         Log.d(TAG, "Project refreshed successfully: ${updatedProject.name}")
+                        // Preserve isAdmin from the original project since getProjectById might not include it
+                        val projectWithAdmin = updatedProject.copy(isAdmin = preservedIsAdmin)
                         // Update the project in the local state
                         val updatedProjects = _uiState.value.projects.map { p ->
-                            if (p.id == updatedProject.id) updatedProject else p
+                            if (p.id == projectWithAdmin.id) {
+                                // Preserve isAdmin for projects list too
+                                projectWithAdmin.copy(isAdmin = p.isAdmin ?: preservedIsAdmin)
+                            } else p
                         }
                         _uiState.value = _uiState.value.copy(
                             projects = updatedProjects,
-                            selectedProject = updatedProject
+                            selectedProject = projectWithAdmin
                         )
                     }
                     .onFailure { error ->
