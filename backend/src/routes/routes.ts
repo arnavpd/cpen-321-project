@@ -10,6 +10,7 @@ import expenseRoutes from './expense.routes';
 import taskRoutes from './task.routes';
 import calendarRoutes from './calendar.routes';
 import devCalendarRoutes from './dev-calendar.routes';
+import notificationRoutes from './notification.routes';
 
 
 const router = Router();
@@ -28,6 +29,8 @@ router.use('/chat', authenticateToken, chatRoutes);
 router.use('/expenses', authenticateToken, expenseRoutes);
 
 router.use('/tasks', authenticateToken, taskRoutes);
+
+router.use('/notifications', authenticateToken, notificationRoutes);
 
 // Calendar routes - some are public (OAuth callback), some need auth
 router.use('/calendar', calendarRoutes);

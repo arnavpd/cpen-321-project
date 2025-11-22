@@ -51,6 +51,7 @@ router.get(
 );
 
 // Routes
+router.get('/status', authenticateToken, projectController.getProjectStatus);
 router.post('/', authenticateToken, validateBody(createProjectSchema), projectController.createProject);
 router.post('/join', authenticateToken, validateBody(joinProjectSchema), projectController.joinProject);
 router.get('/', authenticateToken, projectController.getUserProjects);

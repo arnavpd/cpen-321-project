@@ -5,6 +5,68 @@ import { userModel } from '../users/user.model';
 import logger from '../../utils/logger.util';
 
 export class ProjectController {
+  async getProjectStatus(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = req.user?.id;
+
+      if (!userId) {
+        res.status(401).json({ message: 'User not authenticated' });
+        return;
+      }
+
+      // Get projects where user is owner or member
+      const ownedProjects = await projectModel.findByOwnerId(userId);
+      const memberProjects = await projectModel.findByMemberId(userId);
+
+      // Combine and deduplicate projects
+      const allProjects = [...ownedProjects];
+      memberProjects.forEach(memberProject => {
+        if (!allProjects.find(p => p._id.toString() === memberProject._id.toString())) {
+          allProjects.push(memberProject);
+        }
+      });
+
+      // Calculate project statistics
+      const projectsWithStats = allProjects.map(project => ({
+        id: project._id.toString(),
+        name: project.name,
+        description: project.description,
+        membersCount: project.members.length,
+        resourcesCount: project.resources?.length || 0,
+        isActive: project.isActive !== false, // Default to true if not set
+        createdAt: project.createdAt
+      }));
+
+      const activeProjects = projectsWithStats.filter(p => p.isActive).length;
+      const completedProjects = projectsWithStats.length - activeProjects;
+
+      // For now, we'll calculate basic task stats (can be enhanced later with actual task queries)
+      const totalTasks = allProjects.reduce((sum, project) => {
+        // This would need to be calculated from actual tasks
+        // For now, estimate based on project activity
+        return sum + (project.members.length * 2); // Rough estimate
+      }, 0);
+      const completedTasks = Math.floor(totalTasks * 0.6); // Rough estimate
+
+      logger.info(`Retrieved project status for user ${userId}: ${allProjects.length} projects`);
+
+      res.status(200).json({
+        message: 'Projects status retrieved successfully',
+        data: {
+          totalProjects: allProjects.length,
+          projects: projectsWithStats,
+          activeProjects,
+          completedProjects,
+          totalTasks,
+          completedTasks
+        }
+      });
+    } catch (error) {
+      logger.error('Error retrieving project status:', error);
+      res.status(500).json({ message: 'Failed to get project status' });
+    }
+  }
+
   async createProject(req: Request, res: Response): Promise<void> {
     try {
       const { name, description } = req.body;

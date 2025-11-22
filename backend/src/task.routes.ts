@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { taskController } from './features/tasks/task.controller';
-import { authenticateToken } from './auth.middleware';
+import { authenticateToken } from './middleware/auth.middleware';
 
 const router = Router({ mergeParams: true });
 
@@ -31,7 +31,7 @@ router.put(
 );
 
 router.delete(
-  '/:taskId',
+  '/:taskId',        
   authenticateToken,
   (req, res) => taskController.deleteTask(req, res)
 );
