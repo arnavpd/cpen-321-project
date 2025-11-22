@@ -12,50 +12,57 @@
 
 ### 2.1. Locations of Back-end Tests and Instructions to Run Them
 Create a `.env.test` file under `/backend` and populate it with `JWT_SECRET={secret}`. The secret can be taken from the `/backend/.env` file
-Tests are Located in the `backend/tests/mocked` and `backend/tests/unmocked` for the mocked and unmocked tests respectively
-tests can be ran with `npm test` within the `/backend` directory
+
+**Test Organization:**
+- API endpoint tests are located in `backend/tests/api/mocked` and `backend/tests/api/unmocked` for mocked and unmocked tests respectively
+- Unit tests and service tests are located in `backend/tests/non-api/mocked` and `backend/tests/non-api/unmocked`
+- Non-functional requirement tests are located in `backend/tests/nonfunctional`
+
+**Note:** All test import paths have been updated to work with the new directory structure and all test scripts are fully functional.
+
+Tests can be run with `npm test` within the `/backend` directory
+- `git clone`
+- `cd ./backend`
+- `npm test`
+Additional test commands can be found in section `2.1.3`
+
 #### 2.1.1. Tests
 | **Interface** | **Describe Group Location, No Mocks** | **Describe Group Location, With Mocks** | **Mocked Components** |
 | ----------------------------- | ---------------------------------------------------- | -------------------------------------------------- | ---------------------------------- |
-| **GET /api/user/profile** | [`tests/unmocked/userProfile.test.ts#L13`](../backend/tests/unmocked/userProfile.test.ts#L13) | [`tests/mocked/userProfile.test.ts#L18`](../backend/tests/mocked/userProfile.test.ts#L18) | User Database Model, JWT Verification |
-| **POST /api/user/profile** | [`tests/unmocked/updateUserProfile.test.ts#L13`](../backend/tests/unmocked/updateUserProfile.test.ts#L13) | [`tests/mocked/updateUserProfile.test.ts#L13`](../backend/tests/mocked/updateUserProfile.test.ts#L13) | User Database Model, Profile Validation, Authentication Middleware |
-| **DELETE /api/user/profile** | [`tests/unmocked/deleteUserProfile.test.ts#L13`](../backend/tests/unmocked/deleteUserProfile.test.ts#L13) | [`tests/mocked/deleteUserProfile.test.ts#L13`](../backend/tests/mocked/deleteUserProfile.test.ts#L13) | User Database Model, Media Service, Authentication Middleware |
-| **GET /api/user/:userId** | [`tests/unmocked/getUserById.test.ts#L13`](../backend/tests/unmocked/getUserById.test.ts#L13) | [`tests/mocked/getUserById.test.ts#L13`](../backend/tests/mocked/getUserById.test.ts#L13) | User Database Model, JWT Authentication, ObjectId Validation |
-| **POST /api/auth/signin** | [`tests/unmocked/authSignin.test.ts#L11`](../backend/tests/unmocked/authSignin.test.ts#L11) | [`tests/mocked/authSignin.test.ts#L13`](../backend/tests/mocked/authSignin.test.ts#L13) | Google OAuth2 Client, Auth Service, User Database |
-| **POST /api/auth/signup** | [`tests/unmocked/authSignup.test.ts#L13`](../backend/tests/unmocked/authSignup.test.ts#L13) | [`tests/mocked/authSignup.test.ts#L13`](../backend/tests/mocked/authSignup.test.ts#L13) | Google OAuth2 Client, Auth Service, User Database Model |
-| **POST /api/projects** | [`tests/unmocked/createProject.test.ts#L13`](../backend/tests/unmocked/createProject.test.ts#L13) | [`tests/mocked/createProject.test.ts#L14`](../backend/tests/mocked/createProject.test.ts#L14) | Project Database Model, User Database Model, Invitation Code Generator |
-| **POST /api/projects, GET /api/projects, PUT /api/projects/:projectId** | [`tests/unmocked/projectManagement.test.ts#L17`](../backend/tests/unmocked/projectManagement.test.ts#L17) | [`tests/mocked/projectManagement.test.ts#L147`](../backend/tests/mocked/projectManagement.test.ts#L147) | ProjectController Class, Project Database Model, User Authorization, Authentication Middleware |
-| **PUT /api/projects/:projectId** | [`tests/unmocked/updateProject.test.ts#L13`](../backend/tests/unmocked/updateProject.test.ts#L13) | [`tests/mocked/updateProject.test.ts#L13`](../backend/tests/mocked/updateProject.test.ts#L13) | Project Database Model, Authentication Middleware, Validation Middleware |
-| **DELETE /api/projects/:projectId** | [`tests/unmocked/deleteProject.test.ts#L16`](../backend/tests/unmocked/deleteProject.test.ts#L16) | [`tests/mocked/deleteProject.test.ts#L16`](../backend/tests/mocked/deleteProject.test.ts#L16) | Project Database Model, User Database Model, Authentication Middleware |
-| **POST /api/projects/join** | [`tests/unmocked/joinProject.test.ts#L13`](../backend/tests/unmocked/joinProject.test.ts#L13) | [`tests/mocked/joinProject.test.ts#L13`](../backend/tests/mocked/joinProject.test.ts#L13) | Project Database Model, Authentication Middleware, Validation Middleware |
-| **DELETE /api/projects/:projectId/members/:userId** | [`tests/unmocked/removeMember.test.ts#L16`](../backend/tests/unmocked/removeMember.test.ts#L16) | [`tests/mocked/removeMember.test.ts#L16`](../backend/tests/mocked/removeMember.test.ts#L16) | Project Database Model, User Database Model, Authentication Middleware |
-| **POST /api/projects/:projectId/resources** | [`tests/unmocked/addResource.test.ts#L13`](../backend/tests/unmocked/addResource.test.ts#L13) | [`tests/mocked/addResource.test.ts#L13`](../backend/tests/mocked/addResource.test.ts#L13) | Project Database Model, Authentication Middleware, Validation Middleware |
-| **POST /api/projects/:projectId/tasks** | [`tests/unmocked/createTask.test.ts#L14`](../backend/tests/unmocked/createTask.test.ts#L14) | [`tests/mocked/createTask.test.ts#L16`](../backend/tests/mocked/createTask.test.ts#L16) | Task Database Model, User Database Model |
-| **GET /api/projects/:projectId/tasks** | [`tests/unmocked/taskManagement.test.ts#L13`](../backend/tests/unmocked/taskManagement.test.ts#L13) | [`tests/mocked/taskManagement.test.ts#L14`](../backend/tests/mocked/taskManagement.test.ts#L14) | Task Controller, Auth Middleware, Task Database Model, User Authorization |
-| **GET /api/tasks/:taskId** | [`tests/unmocked/taskManagement.test.ts#L13`](../backend/tests/unmocked/taskManagement.test.ts#L13) | [`tests/mocked/taskManagement.test.ts#L14`](../backend/tests/mocked/taskManagement.test.ts#L14) | Task Controller, Auth Middleware, Task Database Model, User Authorization |
-| **PUT /api/tasks/:taskId** | [`tests/unmocked/taskManagement.test.ts#L13`](../backend/tests/unmocked/taskManagement.test.ts#L13) | [`tests/mocked/taskManagement.test.ts#L14`](../backend/tests/mocked/taskManagement.test.ts#L14) | Task Controller, Auth Middleware, Task Database Model, User Authorization |
-| **DELETE /api/tasks/:taskId** | [`tests/unmocked/taskManagement.test.ts#L13`](../backend/tests/unmocked/taskManagement.test.ts#L13) | [`tests/mocked/taskManagement.test.ts#L14`](../backend/tests/mocked/taskManagement.test.ts#L14) | Task Controller, Auth Middleware, Task Database Model, User Authorization |
-| **POST /api/expenses** | [`tests/unmocked/createExpense.test.ts#L13`](../backend/tests/unmocked/createExpense.test.ts#L13) | [`tests/mocked/createExpense.test.ts#L14`](../backend/tests/mocked/createExpense.test.ts#L14) | Expense Database Model, Bill Split Calculation |
-| **GET /api/expenses/project/:projectId** | [`tests/unmocked/expenseOperations.test.ts#L17`](../backend/tests/unmocked/expenseOperations.test.ts#L17) | [`tests/mocked/expenseOperations.test.ts#L77`](../backend/tests/mocked/expenseOperations.test.ts#L77) | Expense Database Model, User Authorization, Project Access Control |
-| **DELETE /api/expenses/:expenseId** | [`tests/unmocked/expenseOperations.test.ts#L17`](../backend/tests/unmocked/expenseOperations.test.ts#L17) | [`tests/mocked/expenseOperations.test.ts#L77`](../backend/tests/mocked/expenseOperations.test.ts#L77) | Expense Database Model, User Authorization, Project Access Control |
-| **POST /api/chat/:projectId/messages** | [`tests/unmocked/sendChatMessage.test.ts#L11`](../backend/tests/unmocked/sendChatMessage.test.ts#L11) | [`tests/mocked/sendChatMessage.test.ts#L11`](../backend/tests/mocked/sendChatMessage.test.ts#L11) | Chat Message Database Model, Project Access Control, WebSocket Service |
-| **GET /api/chat/:projectId/messages** | [`tests/unmocked/getChatMessages.test.ts#L13`](../backend/tests/unmocked/getChatMessages.test.ts#L13) | [`tests/mocked/getChatMessages.test.ts#L13`](../backend/tests/mocked/getChatMessages.test.ts#L13) | Chat Message Database Model, Project Access Control, Message Pagination |
-| **DELETE /api/chat/:projectId/messages/:messageId** | [`tests/unmocked/deleteChatMessage.test.ts#L13`](../backend/tests/unmocked/deleteChatMessage.test.ts#L13) | [`tests/mocked/deleteChatMessage.test.ts#L13`](../backend/tests/mocked/deleteChatMessage.test.ts#L13) | Chat Message Database Model, User Authorization, Message Ownership Validation |
-| **WebSocket /chat** | [`tests/unmocked/chatWebSocketService.test.ts#L12`](../backend/tests/unmocked/chatWebSocketService.test.ts#L12) | [`tests/mocked/chatWebSocketService.test.ts#L14`](../backend/tests/mocked/chatWebSocketService.test.ts#L14) | Socket.IO Server, JWT Authentication Middleware, WebSocket Broadcasting, Project Room Management |
-| **POST /api/media/upload** | [`tests/unmocked/uploadImage.test.ts#L11`](../backend/tests/unmocked/uploadImage.test.ts#L11) | [`tests/mocked/uploadImage.test.ts#L16`](../backend/tests/mocked/uploadImage.test.ts#L16) | Media Service, File System Operations, Multer File Handling |
-| **GET /api/calendar/status** | [`tests/unmocked/calendar.test.ts#L16`](../backend/tests/unmocked/calendar.test.ts#L16) | [`tests/mocked/calendar.test.ts#L77`](../backend/tests/mocked/calendar.test.ts#L77) | Calendar Controller, User Database Model, Google OAuth Service |
-| **GET /api/calendar/oauth/authorize** | [`tests/unmocked/calendarAuthorize.test.ts#L16`](../backend/tests/unmocked/calendarAuthorize.test.ts#L16) | [`tests/mocked/calendarAuthorize.test.ts#L16`](../backend/tests/mocked/calendarAuthorize.test.ts#L16) | Calendar Service, Authentication Middleware, OAuth URL Generation |
-| **POST /api/calendar/enable** | [`tests/unmocked/calendarEnable.test.ts#L13`](../backend/tests/unmocked/calendarEnable.test.ts#L13) | [`tests/mocked/calendarEnable.test.ts#L13`](../backend/tests/mocked/calendarEnable.test.ts#L13) | User Database Model, Authentication Middleware, Calendar Service |
-| **POST /api/calendar/disable** | [`tests/unmocked/calendarDisable.test.ts#L13`](../backend/tests/unmocked/calendarDisable.test.ts#L13) | [`tests/mocked/calendarDisable.test.ts#L13`](../backend/tests/mocked/calendarDisable.test.ts#L13) | User Database Model, Authentication Middleware |
-| **POST /api/calendar/disconnect** | [`tests/unmocked/calendarDisconnect.test.ts#L13`](../backend/tests/unmocked/calendarDisconnect.test.ts#L13) | [`tests/mocked/calendarDisconnect.test.ts#L13`](../backend/tests/mocked/calendarDisconnect.test.ts#L13) | User Database Model, Calendar Service, Authentication Middleware |
+| **GET /api/user/profile** | [`tests/api/unmocked/userProfile.test.ts#L13`](../backend/tests/api/unmocked/userProfile.test.ts#L13) | [`tests/api/mocked/userProfile.test.ts#L18`](../backend/tests/api/mocked/userProfile.test.ts#L18) | User Database Model, JWT Verification |
+| **POST /api/user/profile** | [`tests/api/unmocked/updateUserProfile.test.ts#L13`](../backend/tests/api/unmocked/updateUserProfile.test.ts#L13) | [`tests/api/mocked/updateUserProfile.test.ts#L13`](../backend/tests/api/mocked/updateUserProfile.test.ts#L13) | User Database Model, Profile Validation, Authentication Middleware |
+| **DELETE /api/user/profile** | [`tests/api/unmocked/deleteUserProfile.test.ts#L13`](../backend/tests/api/unmocked/deleteUserProfile.test.ts#L13) | [`tests/api/mocked/deleteUserProfile.test.ts#L13`](../backend/tests/api/mocked/deleteUserProfile.test.ts#L13) | User Database Model, Media Service, Authentication Middleware |
+| **GET /api/user/:userId** | [`tests/api/unmocked/getUserById.test.ts#L13`](../backend/tests/api/unmocked/getUserById.test.ts#L13) | [`tests/api/mocked/getUserById.test.ts#L13`](../backend/tests/api/mocked/getUserById.test.ts#L13) | User Database Model, JWT Authentication, ObjectId Validation |
+| **POST /api/auth/signin** | [`tests/api/unmocked/authSignin.test.ts#L11`](../backend/tests/api/unmocked/authSignin.test.ts#L11) | [`tests/api/mocked/authSignin.test.ts#L13`](../backend/tests/api/mocked/authSignin.test.ts#L13) | Google OAuth2 Client, Auth Service, User Database |
+| **POST /api/auth/signup** | [`tests/api/unmocked/authSignup.test.ts#L13`](../backend/tests/api/unmocked/authSignup.test.ts#L13) | [`tests/api/mocked/authSignup.test.ts#L13`](../backend/tests/api/mocked/authSignup.test.ts#L13) | Google OAuth2 Client, Auth Service, User Database Model |
+| **POST /api/projects** | [`tests/api/unmocked/createProject.test.ts#L13`](../backend/tests/api/unmocked/createProject.test.ts#L13) | [`tests/api/mocked/createProject.test.ts#L14`](../backend/tests/api/mocked/createProject.test.ts#L14) | Project Database Model, User Database Model, Invitation Code Generator |
+| **POST /api/projects, GET /api/projects, PUT /api/projects/:projectId** | [`tests/api/unmocked/projectManagement.test.ts#L17`](../backend/tests/api/unmocked/projectManagement.test.ts#L17) | [`tests/api/mocked/projectManagement.test.ts#L147`](../backend/tests/api/mocked/projectManagement.test.ts#L147) | ProjectController Class, Project Database Model, User Authorization, Authentication Middleware |
+| **PUT /api/projects/:projectId** | [`tests/api/unmocked/updateProject.test.ts#L13`](../backend/tests/api/unmocked/updateProject.test.ts#L13) | [`tests/api/mocked/updateProject.test.ts#L13`](../backend/tests/api/mocked/updateProject.test.ts#L13) | Project Database Model, Authentication Middleware, Validation Middleware |
+| **DELETE /api/projects/:projectId** | [`tests/api/unmocked/deleteProject.test.ts#L16`](../backend/tests/api/unmocked/deleteProject.test.ts#L16) | [`tests/api/mocked/deleteProject.test.ts#L16`](../backend/tests/api/mocked/deleteProject.test.ts#L16) | Project Database Model, User Database Model, Authentication Middleware |
+| **POST /api/projects/join** | [`tests/api/unmocked/joinProject.test.ts#L13`](../backend/tests/api/unmocked/joinProject.test.ts#L13) | [`tests/api/mocked/joinProject.test.ts#L13`](../backend/tests/api/mocked/joinProject.test.ts#L13) | Project Database Model, Authentication Middleware, Validation Middleware |
+| **DELETE /api/projects/:projectId/members/:userId** | [`tests/api/unmocked/removeMember.test.ts#L16`](../backend/tests/api/unmocked/removeMember.test.ts#L16) | [`tests/api/mocked/removeMember.test.ts#L16`](../backend/tests/api/mocked/removeMember.test.ts#L16) | Project Database Model, User Database Model, Authentication Middleware |
+| **POST /api/projects/:projectId/resources** | [`tests/api/unmocked/addResource.test.ts#L13`](../backend/tests/api/unmocked/addResource.test.ts#L13) | [`tests/api/mocked/addResource.test.ts#L13`](../backend/tests/api/mocked/addResource.test.ts#L13) | Project Database Model, Authentication Middleware, Validation Middleware |
+| **POST /api/projects/:projectId/tasks** | [`tests/api/unmocked/createTask.test.ts#L14`](../backend/tests/api/unmocked/createTask.test.ts#L14) | [`tests/api/mocked/createTask.test.ts#L16`](../backend/tests/api/mocked/createTask.test.ts#L16) | Task Database Model, User Database Model |
+| **GET /api/projects/:projectId/tasks** | [`tests/api/unmocked/taskManagement.test.ts#L13`](../backend/tests/api/unmocked/taskManagement.test.ts#L13) | [`tests/api/mocked/taskManagement.test.ts#L14`](../backend/tests/api/mocked/taskManagement.test.ts#L14) | Task Controller, Auth Middleware, Task Database Model, User Authorization |
+| **GET /api/tasks/:taskId** | [`tests/api/unmocked/taskManagement.test.ts#L13`](../backend/tests/api/unmocked/taskManagement.test.ts#L13) | [`tests/api/mocked/taskManagement.test.ts#L14`](../backend/tests/api/mocked/taskManagement.test.ts#L14) | Task Controller, Auth Middleware, Task Database Model, User Authorization |
+| **PUT /api/tasks/:taskId** | [`tests/api/unmocked/taskManagement.test.ts#L13`](../backend/tests/api/unmocked/taskManagement.test.ts#L13) | [`tests/api/mocked/taskManagement.test.ts#L14`](../backend/tests/api/mocked/taskManagement.test.ts#L14) | Task Controller, Auth Middleware, Task Database Model, User Authorization |
+| **DELETE /api/tasks/:taskId** | [`tests/api/unmocked/taskManagement.test.ts#L13`](../backend/tests/api/unmocked/taskManagement.test.ts#L13) | [`tests/api/mocked/taskManagement.test.ts#L14`](../backend/tests/api/mocked/taskManagement.test.ts#L14) | Task Controller, Auth Middleware, Task Database Model, User Authorization |
+| **POST /api/expenses** | [`tests/api/unmocked/createExpense.test.ts#L13`](../backend/tests/api/unmocked/createExpense.test.ts#L13) | [`tests/api/mocked/createExpense.test.ts#L14`](../backend/tests/api/mocked/createExpense.test.ts#L14) | Expense Database Model, Bill Split Calculation |
+| **GET /api/expenses/project/:projectId** | [`tests/api/unmocked/expenseOperations.test.ts#L17`](../backend/tests/api/unmocked/expenseOperations.test.ts#L17) | [`tests/api/mocked/expenseOperations.test.ts#L77`](../backend/tests/api/mocked/expenseOperations.test.ts#L77) | Expense Database Model, User Authorization, Project Access Control |
+| **DELETE /api/expenses/:expenseId** | [`tests/api/unmocked/expenseOperations.test.ts#L17`](../backend/tests/api/unmocked/expenseOperations.test.ts#L17) | [`tests/api/mocked/expenseOperations.test.ts#L77`](../backend/tests/api/mocked/expenseOperations.test.ts#L77) | Expense Database Model, User Authorization, Project Access Control |
+| **POST /api/chat/:projectId/messages** | [`tests/api/unmocked/sendChatMessage.test.ts#L11`](../backend/tests/api/unmocked/sendChatMessage.test.ts#L11) | [`tests/api/mocked/sendChatMessage.test.ts#L11`](../backend/tests/api/mocked/sendChatMessage.test.ts#L11) | Chat Message Database Model, Project Access Control, WebSocket Service |
+| **GET /api/chat/:projectId/messages** | [`tests/api/unmocked/getChatMessages.test.ts#L13`](../backend/tests/api/unmocked/getChatMessages.test.ts#L13) | [`tests/api/mocked/getChatMessages.test.ts#L13`](../backend/tests/api/mocked/getChatMessages.test.ts#L13) | Chat Message Database Model, Project Access Control, Message Pagination |
+| **DELETE /api/chat/:projectId/messages/:messageId** | [`tests/api/unmocked/deleteChatMessage.test.ts#L13`](../backend/tests/api/unmocked/deleteChatMessage.test.ts#L13) | [`tests/api/mocked/deleteChatMessage.test.ts#L13`](../backend/tests/api/mocked/deleteChatMessage.test.ts#L13) | Chat Message Database Model, User Authorization, Message Ownership Validation |
+| **WebSocket /chat** | [`tests/api/unmocked/chatWebSocketService.test.ts#L12`](../backend/tests/api/unmocked/chatWebSocketService.test.ts#L12) | [`tests/non-api/mocked/chatWebSocketService.test.ts#L14`](../backend/tests/non-api/mocked/chatWebSocketService.test.ts#L14) | Socket.IO Server, JWT Authentication Middleware, WebSocket Broadcasting, Project Room Management |
+| **POST /api/media/upload** | [`tests/api/unmocked/uploadImage.test.ts#L11`](../backend/tests/api/unmocked/uploadImage.test.ts#L11) | [`tests/api/mocked/uploadImage.test.ts#L16`](../backend/tests/api/mocked/uploadImage.test.ts#L16) | Media Service, File System Operations, Multer File Handling |
+| **GET /api/calendar/status** | [`tests/api/unmocked/calendar.test.ts#L16`](../backend/tests/api/unmocked/calendar.test.ts#L16) | [`tests/api/mocked/calendar.test.ts#L77`](../backend/tests/api/mocked/calendar.test.ts#L77) | Calendar Controller, User Database Model, Google OAuth Service |
+| **GET /api/calendar/oauth/authorize** | [`tests/api/unmocked/calendarAuthorize.test.ts#L16`](../backend/tests/api/unmocked/calendarAuthorize.test.ts#L16) | [`tests/api/mocked/calendarAuthorize.test.ts#L16`](../backend/tests/api/mocked/calendarAuthorize.test.ts#L16) | Calendar Service, Authentication Middleware, OAuth URL Generation |
+| **POST /api/calendar/enable** | [`tests/api/unmocked/calendarEnable.test.ts#L13`](../backend/tests/api/unmocked/calendarEnable.test.ts#L13) | [`tests/api/mocked/calendarEnable.test.ts#L13`](../backend/tests/api/mocked/calendarEnable.test.ts#L13) | User Database Model, Authentication Middleware, Calendar Service |
+| **POST /api/calendar/disable** | [`tests/api/unmocked/calendarDisable.test.ts#L13`](../backend/tests/api/unmocked/calendarDisable.test.ts#L13) | [`tests/api/mocked/calendarDisable.test.ts#L13`](../backend/tests/api/mocked/calendarDisable.test.ts#L13) | User Database Model, Authentication Middleware |
+| **POST /api/calendar/disconnect** | [`tests/api/unmocked/calendarDisconnect.test.ts#L13`](../backend/tests/api/unmocked/calendarDisconnect.test.ts#L13) | [`tests/api/mocked/calendarDisconnect.test.ts#L13`](../backend/tests/api/mocked/calendarDisconnect.test.ts#L13) | User Database Model, Calendar Service, Authentication Middleware |
 
 
-
-#### 2.1.2. Commit Hash Where Tests Run
-
-`[Insert Commit SHA here]`
-
-#### 2.1.3. Explanation on How to Run the Tests
+#### 2.1.3. How to Run the Tests
 
 1. **Clone the Repository**:
    ```bash
@@ -77,22 +84,32 @@ tests can be ran with `npm test` within the `/backend` directory
    npm run test
    ```
 
-5. **Run Tests Without Mocks Only**:
+5. **Run Tests Without Mocks Only (API Tests)**:
    ```bash
-   npm run test:unmocked
+   npm run test:api:unmocked
    ```
 
-6. **Run Tests With Mocks Only**:
+6. **Run Tests With Mocks Only (API Tests)**:
    ```bash
-   npm run test:mocked
+   npm run test:api:mocked
    ```
 
-7. **Run Non-Functional Requirement Tests Only**:
+7. **Run All API Tests**:
+   ```bash
+   npm run test:api
+   ```
+
+8. **Run Unit/Service Tests (Non-API)**:
+   ```bash
+   npm run test:non-api
+   ```
+
+9. **Run Non-Functional Requirement Tests Only**:
    ```bash
    npm run test:nonfunctional
    ```
 
-8. **Run Tests with Coverage Report**:
+10. **Run Tests with Coverage Report**:
    ```bash
    npm run test:coverage
    ```
@@ -124,7 +141,7 @@ tests can be ran with `npm test` within the `/backend` directory
 | ------------------------------- | ------------------------------------------------ |
 | **Performance (Response Time)** | [`tests/nonfunctional/response_time.test.ts`](../backend/tests/nonfunctional/response_time.test.ts) |
 | **Data Security & Authorization** | [`tests/nonfunctional/data_security.test.ts`](../backend/tests/nonfunctional/data_security.test.ts) |
-| **Real-time Communication (WebSocket)** | [`tests/mocked/chatWebSocketService.test.ts`](../backend/tests/mocked/chatWebSocketService.test.ts) & [`tests/unmocked/chatWebSocketService.test.ts`](../backend/tests/unmocked/chatWebSocketService.test.ts) |
+| **Real-time Communication (WebSocket)** | [`tests/non-api/mocked/chatWebSocketService.test.ts`](../backend/tests/non-api/mocked/chatWebSocketService.test.ts) & [`tests/api/unmocked/chatWebSocketService.test.ts`](../backend/tests/api/unmocked/chatWebSocketService.test.ts) |
 
 ### 3.2. Test Verification and Logs
 
