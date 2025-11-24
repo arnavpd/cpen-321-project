@@ -1,5 +1,7 @@
 package com.cpen321.usermanagement.data.remote.api
 
+import com.cpen321.usermanagement.data.remote.dto.AddMembersByEmailRequest
+import com.cpen321.usermanagement.data.remote.dto.AddMembersResponse
 import com.cpen321.usermanagement.data.remote.dto.ApiResponse
 import com.cpen321.usermanagement.data.remote.dto.AddResourceRequest
 import com.cpen321.usermanagement.data.remote.dto.ChatMessage
@@ -64,4 +66,10 @@ interface ProjectInterface {
         @Path("projectId") projectId: String,
         @Path("messageId") messageId: String
     ): Response<ApiResponse<Unit>>
+
+    @POST("projects/{projectId}/members/add-by-email")
+    suspend fun addMembersByEmail(
+        @Path("projectId") projectId: String,
+        @Body request: AddMembersByEmailRequest
+    ): Response<ApiResponse<AddMembersResponse>>
 }

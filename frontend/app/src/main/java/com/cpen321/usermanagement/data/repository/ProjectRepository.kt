@@ -1,5 +1,6 @@
 package com.cpen321.usermanagement.data.repository
 
+import com.cpen321.usermanagement.data.remote.dto.AddMembersResponse
 import com.cpen321.usermanagement.data.remote.dto.AddResourceRequest
 import com.cpen321.usermanagement.data.remote.dto.ChatMessage
 import com.cpen321.usermanagement.data.remote.dto.CreateProjectRequest
@@ -7,7 +8,7 @@ import com.cpen321.usermanagement.data.remote.dto.Project
 import com.cpen321.usermanagement.data.remote.dto.UpdateProjectRequest
 
 interface ProjectRepository {
-    suspend fun createProject(name: String, description: String? = null): Result<Project>
+    suspend fun createProject(name: String, description: String? = null, memberEmails: List<String> = emptyList()): Result<Project>
     suspend fun joinProject(invitationCode: String): Result<Project>
     suspend fun getUserProjects(): Result<List<Project>>
     suspend fun getProjectById(projectId: String): Result<Project>
@@ -18,4 +19,5 @@ interface ProjectRepository {
     suspend fun sendMessage(projectId: String, content: String): Result<ChatMessage>
     suspend fun getMessages(projectId: String): Result<List<ChatMessage>>
     suspend fun deleteMessage(projectId: String, messageId: String): Result<Unit>
+    suspend fun addMembersByEmail(projectId: String, emails: List<String>): Result<AddMembersResponse>
 }
