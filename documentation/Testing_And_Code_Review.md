@@ -4,7 +4,8 @@
 
 | **Change Date**   | **Modified Sections** | **Rationale** |
 | ----------------- | --------------------- | ------------- |
-| _Nothing to show_ |
+| November 24th, 2025 | 4 Front-end Test Specification | Added steps for how to run tests |
+| November 24th, 2025 | 4.2 Tests | Updated test behavior based on new UI |
 
 ---
 
@@ -221,18 +222,27 @@ Additional test commands can be found in section `2.1.3`
     | 3a. The user inputs an empty project name | Check button labelled "Create" is disabled. |
     | 3. The user inputs a non-empty project name and optional description | Input "ProjectRandomNumber" under "Project Name". |
     | 4. The user clicks the "Create" button | Check button labelled "Create" is enabled.<br>Click "Create" button. |
-    | 5. The user is taken to an invite page | Check text "Invite Page" is present on screen. |
-    | 6a. The user enters an invalid email address | Check "Invite User" input is present on screen.<br>Input "test" under "Invite User".<br>Check button labelled "Send Invites" is present on screen.<br>Click button labelled "Send Invites". |
-    | 6a1. The app displays an error message prompting the user to input a valid email address | Check dialog is opened with text: "Please enter a valid email address". |
-    | 6. The user enters the email addresses of other users they want to invite to the project | Check "Invite User" input is present on screen.<br>Input "c62826472@gmail.com" under "Invite User". |
-    | 7. The user clicks the "Send Invites" button | Check button labelled "Send Invites" is present on screen.<br>Click button labelled "Send Invites". |
-    | 8. The user sees a success message | Check dialog is opened with text: "Users were invited successfully!" |
-    | 9. The user is redirected to the home screen | Check project is visible on screen: "ProjectRandomNumber". |
+    | 5a. The user enters an invalid email address | Check "Invite User" input is present on screen.<br>Input "invalid" under "Invite User".<br>Check button labelled "Add" is present on screen.<br>Click button labelled "Add". |
+    | 6a1. The app displays an error message prompting the user to input a valid email address | Check dialog is opened with text: "Invalid email format". |
+    | 6. The user enters the email addresses of other users they want to invite to the project | Check "Invite User" input is present on screen.<br>Input "test@gmail.com" under "Invite User". |
+    | 7. The user clicks the "Add" button | Check button labelled "Add" is present on screen.<br>Click button labelled "Add". |
+    | 8. The user sees the new project created on the home page | Check project "ProjectRandomNumber" is visible on the screen |
+    | 9. The user clicks on the created project | Click button labelled "ProjectRandomNumber". |
+    | 10. The user clicks on the Settings button | Check the button labelled "Settings" is visible<br>Click button labelled "Settings". |
+    | 11. The user clicks on the Delete button | Check the button labelled "Delete" is visible<br>Click button labelled "Delete". |
+    | 12. The user does not see the project on the home page | Check project "ProjectRandomNumber" is not visible on the screen |
 
   - **Test Logs:**
     ```
-    Note: This test currently fails because the invite users page has not been implemented yet.
-    Test execution requires completion of the user invitation feature.
+    Task :app:connectedDebugAndroidTest
+    Starting 1 tests on Pixel_7(AVD) - 13
+   
+    Pixel_7(AVD) - 13 Tests 0/1 completed. (0 skipped) (0 failed)
+    Pixel_7(AVD) - 13 Tests 1/1 completed. (0 skipped) (0 failed)
+    Finished 1 tests on Pixel_7(AVD) - 13
+   
+    BUILD SUCCESSFUL in 2m 13s
+    72 actionable tasks: 1 executed, 71 up-to-date
     ```
     ![create_project](./images/create_project_new.png)
     ![invitation failed](./images/invite_failed_new.png)
