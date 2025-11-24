@@ -742,19 +742,15 @@ class MyComposeTest {
     }
 
     @Test
-    fun create_project() {
-        // First, sign in and navigate past onboarding
+    fun create_and_delete_project() {
         signInWithGoogle()
-
-        Thread.sleep(1000)
+        Thread.sleep(3000)
 
         composeTestRule.onNodeWithText("Create New Project", ignoreCase = true)
             .assertIsDisplayed()
 
         composeTestRule.onNodeWithText("Create New Project", ignoreCase = true)
             .performClick()
-
-        // Wait for dialog to appear
         composeTestRule.waitUntil(timeoutMillis = 5_000) {
             try {
                 composeTestRule.onNode(
@@ -767,14 +763,19 @@ class MyComposeTest {
             }
         }
 
-        // Check that the Create button is not enabled (clickable) when form is empty
         composeTestRule.onNode(
             hasText("Create", ignoreCase = true) and
                     hasClickAction() and
                     hasAnyAncestor(isDialog())
         ).assertIsNotEnabled()
+        composeTestRule.onNode(
+            hasText("Add", ignoreCase = true) and
+                    hasClickAction() and
+                    hasAnyAncestor(isDialog())
+        ).assertIsNotEnabled()
 
-        // Wait for text fields to be available
+        Thread.sleep(3000)
+
         composeTestRule.waitUntil(timeoutMillis = 3_000) {
             try {
                 composeTestRule.onAllNodes(hasSetTextAction())[0]
@@ -785,13 +786,59 @@ class MyComposeTest {
             }
         }
 
-        // Generate unique project name for this test run (same pattern as other tests)
         val randomNumber = Random.nextInt(1, 9999)
         val randomProjectName = "Project$randomNumber"
 
-        // Input project name into the first text field (Project Name)
         composeTestRule.onAllNodes(hasSetTextAction())[0]
             .performTextInput(randomProjectName)
+
+        Thread.sleep(3000)
+
+        composeTestRule.onAllNodes(hasSetTextAction())[2]
+            .performTextInput("invalid")
+
+        Thread.sleep(2000)
+
+        composeTestRule.onNode(
+            hasText("Add", ignoreCase = true) and
+                    hasClickAction() and
+                    hasAnyAncestor(isDialog())
+        ).assertIsEnabled()
+
+        composeTestRule.onNodeWithText("Add", ignoreCase = true)
+            .performClick()
+
+        composeTestRule.onNodeWithText("Invalid email format", ignoreCase = true)
+            .assertIsDisplayed()
+
+        Thread.sleep(5000)
+        
+        composeTestRule.onAllNodes(hasSetTextAction())[2]
+            .performTextReplacement("")
+
+        Thread.sleep(3000)
+
+        composeTestRule.onNode(
+            hasText("Add", ignoreCase = true) and
+                    hasClickAction() and
+                    hasAnyAncestor(isDialog())
+        ).assertIsNotEnabled()
+        
+        composeTestRule.onAllNodes(hasSetTextAction())[2]
+            .performTextInput("test@gmail.com")
+
+        Thread.sleep(2000)
+
+        composeTestRule.onNode(
+            hasText("Add", ignoreCase = true) and
+                    hasClickAction() and
+                    hasAnyAncestor(isDialog())
+        ).assertIsEnabled()
+
+        composeTestRule.onNodeWithText("Add", ignoreCase = true)
+            .performClick()
+
+        Thread.sleep(3000)
 
         composeTestRule.onNode(
             hasText("Create", ignoreCase = true) and
@@ -802,56 +849,26 @@ class MyComposeTest {
         composeTestRule.onNodeWithText("Create", ignoreCase = true)
             .performClick()
 
-        // TODO: Not implemented currently
-
-        composeTestRule.onNodeWithText("Invite Page", ignoreCase = true)
-            .assertIsDisplayed()
-
-        composeTestRule.onNodeWithText("Invite User", ignoreCase = true)
-            .assertIsDisplayed()
-
-        composeTestRule.onAllNodes(hasSetTextAction())[0]
-            .performTextInput("test")
-
-        composeTestRule.onNodeWithText("Send Invites", ignoreCase = true)
-            .assertIsDisplayed()
-
-        composeTestRule.onNodeWithText("Send Invites", ignoreCase = true)
-            .performClick()
-
-        composeTestRule.onNodeWithText("Please enter a valid email address", ignoreCase = true)
-            .assertIsDisplayed()
-
-        composeTestRule.onAllNodes(hasSetTextAction())
-            .get(0) // 2nd text field (amount)
-            .performTextReplacement("c62826472@gmail.com")
-
-        composeTestRule.onNodeWithText("Send Invites", ignoreCase = true)
-            .assertIsDisplayed()
-
-        composeTestRule.onNodeWithText("Send Invites", ignoreCase = true)
-            .performClick()
-
-        composeTestRule.onNodeWithText("Users were invited successfully!", ignoreCase = true)
-            .assertIsDisplayed()
-
-        // =========================================================
-
         composeTestRule.onNodeWithText(randomProjectName, ignoreCase = true)
             .assertIsDisplayed()
+
+        Thread.sleep(4000)
 
         // Delete project
-
         composeTestRule.onNodeWithText(randomProjectName, ignoreCase = true)
             .performClick()
 
-        composeTestRule.onNodeWithText("Project Settings", ignoreCase = true)
+        Thread.sleep(3000)
+
+        composeTestRule.onNodeWithText("Settings", ignoreCase = true)
             .assertIsDisplayed()
 
-        composeTestRule.onNodeWithText("Project Settings", ignoreCase = true)
+        composeTestRule.onNodeWithText("Settings", ignoreCase = true)
             .performClick()
 
-        // Wait for Project Settings page to load
+        Thread.sleep(5000)
+
+        // Wait for Settings page to load
         composeTestRule.waitUntil(timeoutMillis = 5_000) {
             try {
                 composeTestRule.onNodeWithText("Delete Project", ignoreCase = true)
@@ -861,6 +878,8 @@ class MyComposeTest {
                 false
             }
         }
+
+        Thread.sleep(5000)
 
         // Click the "Delete" button (not the "Delete Project" text label)
         // The button has text "Delete" and hasClickAction(), while the label is just text
@@ -897,6 +916,8 @@ class MyComposeTest {
         // Verify that the deleted project is no longer displayed on the page
         composeTestRule.onNodeWithText(randomProjectName, ignoreCase = true)
             .assertDoesNotExist()
+
+        Thread.sleep(5000)
     }
 }
 
