@@ -196,9 +196,15 @@ Additional test commands can be found in section `2.1.3`
 
 ## 4. Front-end Test Specification
 **Front-end Test Prerequisites:**
-1. Ensure that a user was previously signed into the app with Google (the tests click the first email after clicking "Sign In With Google"
-2. Ensure that a project named "Test1" was previously created (this project name is utilized in tests)
-3. Ensure that your "Name" under "Manage Profile" is "Test User" (this name is utilized in tests)
+1. Create a new device (Pixel 7 - Android 13.0 "Tiramisu")
+2. Ensure that a user was previously signed into the app with Google (the tests click the first email after clicking "Sign In With Google"
+3. Ensure that a project named "Test1" was previously created (this project name is utilized in tests)
+4. Ensure that your "Name" under "Manage Profile" is "Test User" (this name is utilized in tests)
+
+**How To Run Front-end Tests:**
+1. Open the repository in Android Studio
+2. Run the (Pixel 7 - Android 13.0 "Tiramisu") device you created
+3. Open the [MyComposeTest.kt](https://github.com/arnavpd/cpen-321-project/blob/main/frontend/app/src/androidTest/java/com/cpen321/usermanagement/MyComposeTest.kt) file in Android Studio and click "Run" on each test individually
 ### 4.1. Location in Git of Front-end Test Suite:
 
 `cpen-321-project\frontend\app\src\androidTest\java\com\cpen321\usermanagement\MyComposeTest.kt`
@@ -228,8 +234,8 @@ Additional test commands can be found in section `2.1.3`
     Note: This test currently fails because the invite users page has not been implemented yet.
     Test execution requires completion of the user invitation feature.
     ```
-    ![create_project](./images/create_project.png)
-    ![invitation failed](./images/invite_failed.png)
+    ![create_project](./images/create_project_new.png)
+    ![invitation failed](./images/invite_failed_new.png)
 
 
 - **Use Case: Adding Project Expenses (Use Case 4)**
