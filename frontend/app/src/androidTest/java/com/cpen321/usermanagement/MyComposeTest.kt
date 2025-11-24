@@ -102,10 +102,10 @@ class MyComposeTest {
             .onNodeWithText("Test1", ignoreCase = true)
             .performClick()
 
-        composeTestRule.onNodeWithText("Expense", ignoreCase = true)
+        composeTestRule.onNodeWithText("Expenses", ignoreCase = true)
             .assertIsDisplayed()
 
-        composeTestRule.onNodeWithText("Expense", ignoreCase = true)
+        composeTestRule.onNodeWithText("Expenses", ignoreCase = true)
             .performClick()
 
         composeTestRule.onNodeWithText("Add Expense", ignoreCase = true)
@@ -323,16 +323,6 @@ class MyComposeTest {
 
         composeTestRule
             .onNodeWithText("Test1", ignoreCase = true)
-            .performClick()
-
-        composeTestRule.onNode(
-            hasText("Task Board", ignoreCase = true) and hasClickAction()
-        )
-            .assertIsDisplayed()
-
-        composeTestRule.onNode(
-            hasText("Task Board", ignoreCase = true) and hasClickAction()
-        )
             .performClick()
 
         composeTestRule.onNodeWithText("Create Task", ignoreCase = true)
@@ -738,10 +728,11 @@ class MyComposeTest {
         }
 
         // Verify the expected date exists (using onAllNodes to handle multiple matches)
+        val displayedDate = java.text.SimpleDateFormat("MM/dd/yyyy", java.util.Locale.getDefault()).format(calendar.time)
         composeTestRule.waitUntil(timeoutMillis = 3_000) {
             runCatching {
                 composeTestRule.onAllNodes(
-                    hasText(expectedDate, substring = true, ignoreCase = false) and
+                    hasText(displayedDate, substring = true, ignoreCase = false) and
                             !hasAnyAncestor(isDialog()),
                     useUnmergedTree = true
                 ).fetchSemanticsNodes().isNotEmpty()

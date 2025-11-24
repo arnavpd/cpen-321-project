@@ -51,6 +51,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -146,6 +148,8 @@ private fun ProjectContent(
     modifier: Modifier = Modifier
 ) {
     val uiState by projectViewModel.uiState.collectAsState()
+    val currentProject = uiState.selectedProject
+    var selectedTab by remember { mutableStateOf("Task") }
 
     // Auto-select first project if none is selected
     LaunchedEffect(uiState.projects, uiState.selectedProject) {
@@ -162,6 +166,13 @@ private fun ProjectContent(
                 onBackClick = { navigationStateManager.navigateBack() },
                 onProfileClick = { navigationStateManager.navigateToProfile() }
             )
+        },
+        bottomBar = {
+            ProjectBottomNavigationBar(
+                selectedTab = selectedTab,
+                onTabSelected = { selectedTab = it },
+                isAdmin = currentProject?.isAdmin == true
+            )
         }
     ) { paddingValues ->
         ProjectBody(
@@ -169,7 +180,9 @@ private fun ProjectContent(
             projectViewModel = projectViewModel,
             profileViewModel = profileViewModel,
             expenseRepository = expenseRepository,
-            navigationStateManager = navigationStateManager
+            navigationStateManager = navigationStateManager,
+            selectedTab = selectedTab,
+            onTabSelected = { selectedTab = it }
         )
     }
 }
@@ -197,6 +210,99 @@ private fun ProjectTopBar(
             titleContentColor = MaterialTheme.colorScheme.onSurface
         )
     )
+}
+
+@Composable
+private fun ProjectBottomNavigationBar(
+    selectedTab: String,
+    onTabSelected: (String) -> Unit,
+    isAdmin: Boolean,
+    modifier: Modifier = Modifier
+) {
+    NavigationBar(modifier = modifier) {
+        if (isAdmin) {
+            NavigationBarItem(
+                selected = selectedTab == "Project Settings",
+                onClick = { onTabSelected("Project Settings") },
+                icon = {
+                    Box(modifier = Modifier.testTag("nav_settings_icon")) {
+                        Icon(name = R.drawable.ic_settings)
+                    }
+                },
+                label = { 
+                    Text(
+                        "Settings",
+                        modifier = Modifier.testTag("nav_settings_label")
+                    )
+                },
+                modifier = Modifier.testTag("nav_settings_item")
+            )
+        }
+        NavigationBarItem(
+            selected = selectedTab == "Resource",
+            onClick = { onTabSelected("Resource") },
+                icon = {
+                    Box(modifier = Modifier.testTag("nav_resources_icon")) {
+                        Icon(name = R.drawable.ic_book)
+                    }
+                },
+            label = { 
+                Text(
+                    "Resources",
+                    modifier = Modifier.testTag("nav_resources_label")
+                )
+            },
+            modifier = Modifier.testTag("nav_resources_item")
+        )
+        NavigationBarItem(
+            selected = selectedTab == "Chat",
+            onClick = { onTabSelected("Chat") },
+                icon = {
+                    Box(modifier = Modifier.testTag("nav_chat_icon")) {
+                        Icon(name = R.drawable.ic_chat)
+                    }
+                },
+            label = { 
+                Text(
+                    "Chat",
+                    modifier = Modifier.testTag("nav_chat_label")
+                )
+            },
+            modifier = Modifier.testTag("nav_chat_item")
+        )
+        NavigationBarItem(
+            selected = selectedTab == "Task",
+            onClick = { onTabSelected("Task") },
+                icon = {
+                    Box(modifier = Modifier.testTag("nav_tasks_icon")) {
+                        Icon(name = R.drawable.ic_board)
+                    }
+                },
+            label = { 
+                Text(
+                    "Tasks",
+                    modifier = Modifier.testTag("nav_tasks_label")
+                )
+            },
+            modifier = Modifier.testTag("nav_tasks_item")
+        )
+        NavigationBarItem(
+            selected = selectedTab == "Expense",
+            onClick = { onTabSelected("Expense") },
+                icon = {
+                    Box(modifier = Modifier.testTag("nav_expenses_icon")) {
+                        Icon(name = R.drawable.ic_expense)
+                    }
+                },
+            label = { 
+                Text(
+                    "Expenses",
+                    modifier = Modifier.testTag("nav_expenses_label")
+                )
+            },
+            modifier = Modifier.testTag("nav_expenses_item")
+        )
+    }
 }
 
 @Composable
@@ -263,6 +369,8 @@ private fun ProjectBody(
     profileViewModel: com.cpen321.usermanagement.ui.viewmodels.ProfileViewModel,
     expenseRepository: com.cpen321.usermanagement.data.repository.ExpenseRepository,
     navigationStateManager: NavigationStateManager,
+    selectedTab: String,
+    onTabSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val spacing = LocalSpacing.current
@@ -339,7 +447,6 @@ private fun ProjectBody(
 
     var progressExpanded by remember { mutableStateOf(false) }
     var selectedProgress by remember { mutableStateOf("In Progress") }
-    var selectedTab by remember { mutableStateOf("Task") }
     var showCreateTaskDialog by remember { mutableStateOf(false) }
     var taskName by remember { mutableStateOf("") }
     var assignee by remember { mutableStateOf("") }
@@ -508,128 +615,36 @@ private fun ProjectBody(
         }
     }
 
+    // Handle tab changes to refresh data when needed
+    LaunchedEffect(selectedTab) {
+        when (selectedTab) {
+            "Resource" -> {
+                Log.d("ProjectView", "Clicked Resource")
+                // Refresh project data to get latest resources
+                projectViewModel.refreshSelectedProject()
+            }
+            "Chat" -> {
+                Log.d("ProjectView", "Clicked Chat")
+            }
+            "Expense" -> {
+                Log.d("ProjectView", "Clicked Expense")
+            }
+            "Task" -> {
+                Log.d("ProjectView", "Clicked Task Board")
+            }
+            "Project Settings" -> {
+                Log.d("ProjectView", "Clicked Project Settings")
+            }
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(paddingValues)
-            .padding(horizontal = spacing.small, vertical = spacing.medium),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .padding(horizontal = spacing.medium, vertical = spacing.medium),
         verticalArrangement = Arrangement.Top
     ) {
-        // Navigation buttons
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(spacing.small)
-        ) {
-            // Only show Project Settings button if user is admin
-            if (currentProject?.isAdmin == true) {
-                Button(
-                    onClick = {
-                        Log.d("ProjectView", "Clicked Project Settings")
-                        selectedTab = "Project Settings"
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Project Settings")
-                }
-            }
-
-            Button(
-                onClick = {
-                    Log.d("ProjectView", "Clicked Create Task")
-                    showCreateTaskDialog = true
-                },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Create Task")
-            }
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(spacing.small)
-        ) {
-            Button(
-                onClick = {
-                    Log.d("ProjectView", "Clicked Resource")
-                    selectedTab = "Resource"
-                    // Refresh project data to get latest resources
-                    projectViewModel.refreshSelectedProject()
-                },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Resource")
-            }
-
-            Button(
-                onClick = {
-                    Log.d("ProjectView", "Clicked Chat")
-                    selectedTab = "Chat"
-                },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Chat")
-            }
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(spacing.small)
-        ) {
-            Button(
-                onClick = {
-                    Log.d("ProjectView", "Clicked Expense")
-                    selectedTab = "Expense"
-                },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Expense")
-            }
-
-            Button(
-                onClick = {
-                    Log.d("ProjectView", "Clicked Task Board")
-                    selectedTab = "Task"
-                },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Task Board")
-            }
-        }
-
-        // Add Expense Button (only show when on Expense tab)
-        if (selectedTab == "Expense") {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Button(
-                    onClick = {
-                        Log.d("ProjectView", "Clicked Add Expense")
-                        showCreateExpenseDialog = true
-                    }
-                ) {
-                    Text("Add Expense")
-                }
-            }
-        }
-
-        // Add Resource Button (only show when on Resource tab)
-        if (selectedTab == "Resource") {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Button(
-                    onClick = {
-                        Log.d("ProjectView", "Clicked Add Resource")
-                        showAddResourceDialog = true
-                    }
-                ) {
-                    Text("Add Resource")
-                }
-            }
-        }
 
         // Get tasks for current project
         val tasks = currentProject?.let { 
@@ -642,146 +657,190 @@ private fun ProjectBody(
             projectTasks
         } ?: emptyList()
 
-        if (selectedTab == "Task") {
-            Text("Task Board", style = MaterialTheme.typography.titleLarge)
+        // Content area below the buttons
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            when (selectedTab) {
+                "Task" -> {
+                    // Consistent header with title and action button
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = spacing.medium),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Task Board",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Button(
+                            onClick = {
+                                Log.d("ProjectView", "Clicked Create Task")
+                                showCreateTaskDialog = true
+                            }
+                        ) {
+                            Text("Create Task")
+                        }
+                    }
 
-            // Show error message if present
-            if (uiState.errorMessage != null) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer
-                    )
-                ) {
-                    Text(
-                        text = uiState.errorMessage!!,
-                        color = MaterialTheme.colorScheme.onErrorContainer,
-                        modifier = Modifier.padding(8.dp)
-                    )
-                }
-            }
-
-            // Show success message if present
-            if (uiState.message != null && uiState.message!!.contains("Task")) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
-                ) {
-                    Text(
-                        text = uiState.message!!,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.padding(8.dp)
-                    )
-                }
-            }
-
-            if (tasks.isEmpty()) {
-                Text("No tasks yet.")
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f, fill = true), // Ensures it takes available space
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    items(tasks) { task ->
+                    // Show error message if present
+                    if (uiState.errorMessage != null) {
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 4.dp)
+                                .padding(vertical = 4.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer
+                            )
                         ) {
-                            Column(modifier = Modifier.padding(8.dp)) {
-                                Row {
-                                    Text(
-                                        text = "Name: ",
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(text = task.title)
-                                }
-                                Row {
-                                    Text(
-                                        text = "Status: ",
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        text = task.status,
-                                        color = when (task.status.lowercase()) {
-                                            "in_progress" -> Color(0xFFB8860B) // Dark Goldenrod (darker yellow/orange)
-                                            "completed", "done" -> Color(0xFF4CAF50) // Green
-                                            "backlog" -> Color(0xFF9C27B0) // Purple
-                                            "blocked" -> Color(0xFFF44336) // Red
-                                            "not_started" -> Color(0xFF2196F3) // Blue
-                                            else -> Color.Unspecified // Default color
-                                        }
-                                    )
-                                }
-                                Row {
-                                    Text(
-                                        text = "Assignees: ",
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    if (isLoadingUserNames) {
+                            Text(
+                                text = uiState.errorMessage!!,
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
+                    }
+
+                    // Show success message if present
+                    if (uiState.message != null && uiState.message!!.contains("Task")) {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                            )
+                        ) {
+                            Text(
+                                text = uiState.message!!,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
+                    }
+
+                    if (tasks.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(spacing.extraLarge),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No tasks yet. Create your first task!",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f, fill = true), // Ensures it takes available space
+                            verticalArrangement = Arrangement.spacedBy(spacing.small)
+                        ) {
+                            items(tasks) { task ->
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                    ),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                                ) {
+                                    Column(modifier = Modifier.padding(spacing.medium)) {
                                         Row {
-                                            CircularProgressIndicator(
-                                                modifier = Modifier.size(12.dp),
-                                                strokeWidth = 2.dp
-                                            )
-                                            Spacer(modifier = Modifier.width(4.dp))
                                             Text(
-                                                text = "Loading...",
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                                text = "Name: ",
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            Text(text = task.title)
+                                        }
+                                        Row {
+                                            Text(
+                                                text = "Status: ",
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            Text(
+                                                text = task.status,
+                                                color = when (task.status.lowercase()) {
+                                                    "in_progress" -> Color(0xFFB8860B) // Dark Goldenrod (darker yellow/orange)
+                                                    "completed", "done" -> Color(0xFF4CAF50) // Green
+                                                    "backlog" -> Color(0xFF9C27B0) // Purple
+                                                    "blocked" -> Color(0xFFF44336) // Red
+                                                    "not_started" -> Color(0xFF2196F3) // Blue
+                                                    else -> Color.Unspecified // Default color
+                                                }
                                             )
                                         }
-                                    } else {
-                                        Text(text = task.assignees.joinToString { assigneeId ->
-                                            val userName = userNames[assigneeId] ?: assigneeId
-                                            if (assigneeId == currentUser?._id) {
-                                                "$userName (Me)"
+                                        Row {
+                                            Text(
+                                                text = "Assignees: ",
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            if (isLoadingUserNames) {
+                                                Row {
+                                                    CircularProgressIndicator(
+                                                        modifier = Modifier.size(12.dp),
+                                                        strokeWidth = 2.dp
+                                                    )
+                                                    Spacer(modifier = Modifier.width(4.dp))
+                                                    Text(
+                                                        text = "Loading...",
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                                    )
+                                                }
                                             } else {
-                                                userName
+                                                Text(text = (task.assignees ?: emptyList()).joinToString { assigneeId ->
+                                                    val userName = userNames[assigneeId] ?: assigneeId
+                                                    if (assigneeId == currentUser?._id) {
+                                                        "$userName (Me)"
+                                                    } else {
+                                                        userName
+                                                    }
+                                                })
                                             }
-                                        })
-                                    }
-                                }
-                                Row {
-                                    Text(
-                                        text = "Deadline: ",
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(text = task.deadline?.let { deadline ->
-                                        try {
-                                            // Parse the ISO date string and format it to show only the date
-                                            val inputFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault())
-                                            val outputFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
-                                            val date = inputFormat.parse(deadline)
-                                            outputFormat.format(date)
-                                        } catch (e: Exception) {
-                                            // If parsing fails, try to extract just the date part
-                                            deadline.substringBefore("T")
                                         }
-                                    } ?: "None")
+                                        if (task.deadline != null && task.deadline!!.isNotBlank()) {
+                                            Row {
+                                                Text(
+                                                    text = "Deadline: ",
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                                Text(
+                                                    text = try {
+                                                        // Try parsing ISO date format first
+                                                        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+                                                        val date = inputFormat.parse(task.deadline!!)
+                                                        if (date != null) {
+                                                            SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).format(date)
+                                                        } else {
+                                                            // Fallback: try to extract just the date part
+                                                            task.deadline!!.substringBefore("T")
+                                                        }
+                                                    } catch (e: Exception) {
+                                                        // If parsing fails, try to extract just the date part
+                                                        try {
+                                                            task.deadline!!.substringBefore("T")
+                                                        } catch (e2: Exception) {
+                                                            task.deadline!!
+                                                        }
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
-        }
-
-        // Content area below the buttons
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = spacing.large)
-        ) {
-            when (selectedTab) {
                 "Project Settings" -> {
                     // Refresh project data when Project Settings tab is opened
                     LaunchedEffect(selectedTab) {
@@ -794,12 +853,15 @@ private fun ProjectBody(
                         }
                     }
                     
+                    // Consistent header with title
                     Text(
-                        text = "Project Settings:",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium,
+                        text = "Project Settings",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(bottom = spacing.medium)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = spacing.medium)
                     )
 
                     Column(
@@ -1035,34 +1097,27 @@ private fun ProjectBody(
                     }
                 }
                 "Resource" -> {
+                    // Consistent header with title and action button
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = spacing.medium),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Resources:",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(bottom = spacing.medium)
+                            text = "Resources",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
-
-                        // Show refresh button
-                        if (uiState.isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            TextButton(
-                                onClick = {
-                                    Log.d("ProjectView", "Manual refresh clicked")
-                                    projectViewModel.refreshSelectedProject()
-                                }
-                            ) {
-                                Text("Refresh")
+                        Button(
+                            onClick = {
+                                Log.d("ProjectView", "Clicked Add Resource")
+                                showAddResourceDialog = true
                             }
+                        ) {
+                            Text("Add Resource")
                         }
                     }
 
@@ -1079,11 +1134,13 @@ private fun ProjectBody(
                     }
 
                     if (currentProject?.resources?.isNotEmpty() == true) {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f, fill = true),
                             verticalArrangement = Arrangement.spacedBy(spacing.small)
                         ) {
-                            currentProject.resources.forEach { resource ->
+                            items(currentProject.resources) { resource ->
                                 ResourceItem(
                                     resource = resource,
                                     modifier = Modifier.fillMaxWidth()
@@ -1091,13 +1148,19 @@ private fun ProjectBody(
                             }
                         }
                     } else {
-                        Text(
-                            text = "No resources yet. Add your first resource!",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(spacing.extraLarge),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No resources yet. Add your first resource!",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 }
                 "Chat" -> {
@@ -1117,22 +1180,44 @@ private fun ProjectBody(
                     )
                 }
                 "Expense" -> {
-                    Text(
-                        text = "Expenses:",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(bottom = spacing.medium)
-                    )
+                    // Consistent header with title and action button
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = spacing.medium),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Expenses",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Button(
+                            onClick = {
+                                Log.d("ProjectView", "Clicked Add Expense")
+                                showCreateExpenseDialog = true
+                            }
+                        ) {
+                            Text("Add Expense")
+                        }
+                    }
 
                     if (expenses.isEmpty()) {
-                        Text(
-                            text = "No expenses added yet",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth().padding(spacing.large)
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(spacing.extraLarge),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No expenses added yet. Add your first expense!",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     } else {
                         // Expense Table Header
                         Row(
@@ -2077,21 +2162,18 @@ private fun ResourceItem(
     val spacing = LocalSpacing.current
     val context = LocalContext.current
 
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = spacing.small, vertical = spacing.extraSmall)
-            .background(
-                color = MaterialTheme.colorScheme.primaryContainer,
-                shape = RoundedCornerShape(8.dp)
-            )
-            .padding(spacing.medium)
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column {
+        Column(modifier = Modifier.padding(spacing.medium)) {
             Text(
                 text = resource.resourceName,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Medium
             )
             Spacer(modifier = Modifier.height(spacing.extraSmall))
