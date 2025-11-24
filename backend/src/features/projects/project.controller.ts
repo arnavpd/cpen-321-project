@@ -69,10 +69,10 @@ export class ProjectController {
 
   async createProject(req: Request, res: Response): Promise<void> {
     try {
-      const { name, description } = req.body;
+      const { name, description, memberEmails } = req.body;
       const userId = req.user?._id;
 
-      logger.info(`Project creation request: name="${name}", userId=${userId}`);
+      logger.info(`Project creation request: name="${name}", userId=${userId}, memberEmails=${memberEmails?.length || 0}`);
 
       if (!userId) {
         res.status(401).json({ message: 'User not authenticated' });
@@ -132,7 +132,73 @@ export class ProjectController {
       // Update user's owned projects
       await userModel.addOwnedProject(userId, project._id);
 
-      logger.info(`Project created: ${project._id} by user: ${userId}`);
+      // Process member emails if provided
+      const successfullyAdded: string[] = [];
+      const notFound: string[] = [];
+      const alreadyMembers: string[] = [];
+
+      if (memberEmails && Array.isArray(memberEmails) && memberEmails.length > 0) {
+        // Get current user's email to exclude from member list
+        const currentUser = await userModel.findById(userId);
+        const currentUserEmail = currentUser?.email?.toLowerCase();
+
+        for (const email of memberEmails) {
+          if (!email || typeof email !== 'string') {
+            continue;
+          }
+
+          const trimmedEmail = email.trim().toLowerCase();
+          
+          // Skip if email is empty or is the project creator's email
+          if (!trimmedEmail || trimmedEmail === currentUserEmail) {
+            continue;
+          }
+
+          try {
+            const user = await userModel.findByEmail(trimmedEmail);
+            
+            if (!user) {
+              notFound.push(trimmedEmail);
+              continue;
+            }
+
+            // Check if user is already a member
+            const isAlreadyMember = project.members.some(
+              member => member.userId.toString() === user._id.toString()
+            );
+
+            if (isAlreadyMember) {
+              alreadyMembers.push(trimmedEmail);
+              continue;
+            }
+
+            // Add user as member
+            const memberData = {
+              userId: user._id,
+              role: 'user' as const,
+              admin: false,
+              joinedAt: new Date()
+            };
+
+            await projectModel.addMember(project._id, memberData);
+            await userModel.addMemberProject(user._id, project._id);
+            successfullyAdded.push(trimmedEmail);
+
+            logger.info(`Added member ${trimmedEmail} to project ${project._id}`);
+          } catch (error) {
+            logger.error(`Error processing email ${trimmedEmail}:`, error);
+            notFound.push(trimmedEmail);
+          }
+        }
+
+        // Refresh project to get updated members list
+        const updatedProject = await projectModel.findById(project._id);
+        if (updatedProject) {
+          project.members = updatedProject.members;
+        }
+      }
+
+      logger.info(`Project created: ${project._id} by user: ${userId}, members added: ${successfullyAdded.length}`);
 
       res.status(201).json({
         message: 'Project created successfully',
@@ -146,6 +212,11 @@ export class ProjectController {
           resources: project.resources || [], // Include resources
           createdAt: project.createdAt,
           updatedAt: project.updatedAt
+        },
+        memberInvitations: {
+          successfullyAdded,
+          notFound,
+          alreadyMembers
         }
       });
     } catch (error) {
@@ -606,6 +677,131 @@ export class ProjectController {
       });
     } catch (error) {
       logger.error('Error removing member:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
+  async addMembersByEmail(req: Request, res: Response): Promise<void> {
+    try {
+      const { projectId } = req.params;
+      const { memberEmails } = req.body;
+      const userId = req.user?._id;
+
+      logger.info(`Add members by email request: projectId=${projectId}, userId=${userId}, emails=${memberEmails?.length || 0}`);
+
+      if (!userId) {
+        res.status(401).json({ message: 'User not authenticated' });
+        return;
+      }
+
+      if (!memberEmails || !Array.isArray(memberEmails) || memberEmails.length === 0) {
+        res.status(400).json({ message: 'memberEmails array is required and must not be empty' });
+        return;
+      }
+
+      const project = await projectModel.findById(new mongoose.Types.ObjectId(projectId));
+
+      if (!project) {
+        res.status(404).json({ message: 'Project not found' });
+        return;
+      }
+
+      // Check if user is owner or admin
+      const isOwner = project.ownerId.toString() === userId.toString();
+      const isAdmin = await projectModel.isUserAdmin(new mongoose.Types.ObjectId(projectId), userId);
+
+      if (!isOwner && !isAdmin) {
+        res.status(403).json({ message: 'Only project owner or admin can add members' });
+        return;
+      }
+
+      // Get current user's email to exclude from member list
+      const currentUser = await userModel.findById(userId);
+      const currentUserEmail = currentUser?.email?.toLowerCase();
+
+      const successfullyAdded: string[] = [];
+      const notFound: string[] = [];
+      const alreadyMembers: string[] = [];
+
+      for (const email of memberEmails) {
+        if (!email || typeof email !== 'string') {
+          continue;
+        }
+
+        const trimmedEmail = email.trim().toLowerCase();
+        
+        // Skip if email is empty or is the project creator's email
+        if (!trimmedEmail || trimmedEmail === currentUserEmail) {
+          continue;
+        }
+
+        try {
+          const user = await userModel.findByEmail(trimmedEmail);
+          
+          if (!user) {
+            notFound.push(trimmedEmail);
+            continue;
+          }
+
+          // Check if user is already a member
+          const isAlreadyMember = project.members.some(
+            member => member.userId.toString() === user._id.toString()
+          ) || project.ownerId.toString() === user._id.toString();
+
+          if (isAlreadyMember) {
+            alreadyMembers.push(trimmedEmail);
+            continue;
+          }
+
+          // Add user as member
+          const memberData = {
+            userId: user._id,
+            role: 'user' as const,
+            admin: false,
+            joinedAt: new Date()
+          };
+
+          await projectModel.addMember(new mongoose.Types.ObjectId(projectId), memberData);
+          await userModel.addMemberProject(user._id, new mongoose.Types.ObjectId(projectId));
+          successfullyAdded.push(trimmedEmail);
+
+          logger.info(`Added member ${trimmedEmail} to project ${projectId}`);
+        } catch (error) {
+          logger.error(`Error processing email ${trimmedEmail}:`, error);
+          notFound.push(trimmedEmail);
+        }
+      }
+
+      // Refresh project to get updated members list
+      const updatedProject = await projectModel.findById(new mongoose.Types.ObjectId(projectId));
+      const userIsOwner = updatedProject ? updatedProject.ownerId.toString() === userId.toString() : isOwner;
+      const userIsAdmin = updatedProject ? await projectModel.isUserAdmin(new mongoose.Types.ObjectId(projectId), userId) : isAdmin;
+
+      logger.info(`Add members by email completed: projectId=${projectId}, added=${successfullyAdded.length}, notFound=${notFound.length}, alreadyMembers=${alreadyMembers.length}`);
+
+      res.status(200).json({
+        message: 'Members added successfully',
+        data: {
+          successfullyAdded,
+          notFound,
+          alreadyMembers
+        },
+        project: updatedProject ? {
+          id: updatedProject._id,
+          name: updatedProject.name,
+          description: updatedProject.description,
+          invitationCode: updatedProject.invitationCode,
+          ownerId: updatedProject.ownerId.toString(),
+          members: updatedProject.members,
+          resources: updatedProject.resources || [],
+          createdAt: updatedProject.createdAt,
+          updatedAt: updatedProject.updatedAt,
+          isOwner: userIsOwner,
+          isAdmin: userIsAdmin
+        } : null
+      });
+    } catch (error) {
+      logger.error('Error adding members by email:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
   }

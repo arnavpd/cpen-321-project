@@ -12,7 +12,12 @@ const projectController = new ProjectController();
 // Validation schemas
 const createProjectSchema = z.object({
   name: z.string().min(1, 'Project name is required').max(100, 'Project name must be less than 100 characters'),
-  description: z.string().max(1000, 'Description must be less than 1000 characters').optional()
+  description: z.string().max(1000, 'Description must be less than 1000 characters').optional(),
+  memberEmails: z.array(z.string().email('Invalid email format')).optional()
+});
+
+const addMembersByEmailSchema = z.object({
+  memberEmails: z.array(z.string().email('Invalid email format')).min(1, 'At least one email is required')
 });
 
 const updateProjectSchema = z.object({
@@ -60,5 +65,6 @@ router.put('/:projectId', authenticateToken, validateBody(updateProjectSchema), 
 router.delete('/:projectId', authenticateToken, projectController.deleteProject);
 router.delete('/:projectId/members/:userId', authenticateToken, projectController.removeMember);
 router.post('/:projectId/resources', authenticateToken, validateBody(addResourceSchema), projectController.addResource);
+router.post('/:projectId/members/add-by-email', authenticateToken, validateBody(addMembersByEmailSchema), projectController.addMembersByEmail);
 
 export default router;

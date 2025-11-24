@@ -173,8 +173,8 @@ fun HomePage(
     if (showCreateDialog) {
         CreateProjectDialog(
             onDismiss = { showCreateDialog = false },
-            onCreateProject = { name, description ->
-                projectViewModel.createProject(name, description)
+            onCreateProject = { name, description, memberEmails ->
+                projectViewModel.createProject(name, description, memberEmails)
             },
             isCreating = uiState.isCreating,
             onProjectCreated = { 
@@ -272,14 +272,49 @@ private fun ProjectItem(
 @Composable
 private fun CreateProjectDialog(
     onDismiss: () -> Unit,
-    onCreateProject: (String, String?) -> Unit,
+    onCreateProject: (String, String?, List<String>) -> Unit,
     isCreating: Boolean,
     onProjectCreated: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var projectName by remember { mutableStateOf("") }
     var projectDescription by remember { mutableStateOf("") }
+    var memberEmails by remember { mutableStateOf(listOf<String>()) }
+    var currentEmailInput by remember { mutableStateOf("") }
+    var emailError by remember { mutableStateOf<String?>(null) }
     var hasCreatedProject by remember { mutableStateOf(false) }
+
+    // Email validation pattern
+    val emailPattern = remember {
+        android.util.Patterns.EMAIL_ADDRESS
+    }
+
+    fun isValidEmail(email: String): Boolean {
+        return emailPattern.matcher(email.trim()).matches()
+    }
+
+    fun addEmail() {
+        val trimmedEmail = currentEmailInput.trim()
+        if (trimmedEmail.isEmpty()) {
+            emailError = "Email cannot be empty"
+            return
+        }
+        if (!isValidEmail(trimmedEmail)) {
+            emailError = "Invalid email format"
+            return
+        }
+        if (memberEmails.contains(trimmedEmail.lowercase())) {
+            emailError = "Email already added"
+            return
+        }
+        memberEmails = memberEmails + trimmedEmail.lowercase()
+        currentEmailInput = ""
+        emailError = null
+    }
+
+    fun removeEmail(email: String) {
+        memberEmails = memberEmails.filter { it != email }
+    }
 
     // Close dialog when project creation is successful
     LaunchedEffect(isCreating) {
@@ -294,7 +329,10 @@ private fun CreateProjectDialog(
             Text("Create New Project")
         },
         text = {
-            Column {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 OutlinedTextField(
                     value = projectName,
                     onValueChange = { projectName = it },
@@ -302,7 +340,6 @@ private fun CreateProjectDialog(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !isCreating
                 )
-                Spacer(modifier = Modifier.height(16.dp))
                 OutlinedTextField(
                     value = projectDescription,
                     onValueChange = { projectDescription = it },
@@ -311,15 +348,90 @@ private fun CreateProjectDialog(
                     enabled = !isCreating,
                     maxLines = 3
                 )
+                
+                // Add Members section
+                Text(
+                    text = "Add Members (Optional)",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = currentEmailInput,
+                        onValueChange = { 
+                            currentEmailInput = it
+                            emailError = null
+                        },
+                        label = { Text("Enter email address") },
+                        placeholder = { Text("user@example.com") },
+                        modifier = Modifier.weight(1f),
+                        enabled = !isCreating,
+                        isError = emailError != null,
+                        singleLine = true
+                    )
+                    Button(
+                        onClick = { addEmail() },
+                        enabled = !isCreating && currentEmailInput.isNotBlank()
+                    ) {
+                        Text("Add")
+                    }
+                }
+                
+                if (emailError != null) {
+                    Text(
+                        text = emailError!!,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                
+                // Display added emails
+                if (memberEmails.isNotEmpty()) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = "Added members (${memberEmails.size}):",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        memberEmails.forEach { email ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = email,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                TextButton(
+                                    onClick = { removeEmail(email) },
+                                    enabled = !isCreating
+                                ) {
+                                    Text("Remove")
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         confirmButton = {
             Button(
                 onClick = {
                     if (projectName.isNotBlank() && !isCreating && !hasCreatedProject) {
-                        Log.d("HomePage", "Dialog: Creating project: $projectName")
+                        Log.d("HomePage", "Dialog: Creating project: $projectName with ${memberEmails.size} members")
                         hasCreatedProject = true
-                        onCreateProject(projectName, projectDescription.ifBlank { null })
+                        onCreateProject(projectName, projectDescription.ifBlank { null }, memberEmails)
                     }
                 },
                 enabled = projectName.isNotBlank() && !isCreating

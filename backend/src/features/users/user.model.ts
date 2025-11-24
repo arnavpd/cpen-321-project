@@ -166,6 +166,22 @@ export class UserModel {
     }
   }
 
+  async findByEmail(email: string): Promise<IUser | null> {
+    try {
+      const trimmedEmail = email.trim().toLowerCase();
+      const user = await this.user.findOne({ email: trimmedEmail });
+      
+      if (!user) {
+        return null;
+      }
+      
+      return user;
+    } catch (error) {
+      console.error('Error finding user by email:', error);
+      throw new Error('Failed to find user by email');
+    }
+  }
+
   async addOwnedProject(userId: mongoose.Types.ObjectId, projectId: mongoose.Types.ObjectId): Promise<IUser | null> {
     try {
       return await this.user.findByIdAndUpdate(

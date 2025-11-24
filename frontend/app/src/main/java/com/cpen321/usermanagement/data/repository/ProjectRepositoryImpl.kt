@@ -2,6 +2,8 @@ package com.cpen321.usermanagement.data.repository
 
 import android.util.Log
 import com.cpen321.usermanagement.data.remote.api.ProjectInterface
+import com.cpen321.usermanagement.data.remote.dto.AddMembersByEmailRequest
+import com.cpen321.usermanagement.data.remote.dto.AddMembersResponse
 import com.cpen321.usermanagement.data.remote.dto.AddResourceRequest
 import com.cpen321.usermanagement.data.remote.dto.ChatMessage
 import com.cpen321.usermanagement.data.remote.dto.CreateProjectRequest
@@ -22,8 +24,12 @@ class ProjectRepositoryImpl @Inject constructor(
         private const val TAG = "ProjectRepository"
     }
 
-    override suspend fun createProject(name: String, description: String?): Result<Project> {
-        val createProjectReq = CreateProjectRequest(name, description)
+    override suspend fun createProject(name: String, description: String?, memberEmails: List<String>): Result<Project> {
+        val createProjectReq = CreateProjectRequest(
+            name, 
+            description, 
+            if (memberEmails.isEmpty()) null else memberEmails
+        )
         return try {
             val response = projectInterface.createProject(createProjectReq)
             if (response.isSuccessful && response.body()?.data != null) {
@@ -364,6 +370,39 @@ class ProjectRepositoryImpl @Inject constructor(
             Result.failure(e)
         } catch (e: retrofit2.HttpException) {
             Log.e(TAG, "HTTP error during delete message: ${e.code()}", e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun addMembersByEmail(projectId: String, emails: List<String>): Result<AddMembersResponse> {
+        val addMembersReq = AddMembersByEmailRequest(emails)
+        return try {
+            val response = projectInterface.addMembersByEmail(projectId, addMembersReq)
+            if (response.isSuccessful && response.body()?.data != null) {
+                val result = response.body()!!.data!!
+                Log.d(TAG, "Members added successfully to project: $projectId")
+                Log.d(TAG, "Successfully added: ${result.successfullyAdded.size}, Not found: ${result.notFound.size}, Already members: ${result.alreadyMembers.size}")
+                Result.success(result)
+            } else {
+                val errorBodyString = response.errorBody()?.string()
+                val errorMessage = JsonUtils.parseErrorMessage(
+                    errorBodyString,
+                    response.body()?.message ?: "Failed to add members."
+                )
+                Log.e(TAG, "Add members failed: $errorMessage")
+                Result.failure(Exception(errorMessage))
+            }
+        } catch (e: java.net.SocketTimeoutException) {
+            Log.e(TAG, "Network timeout during add members", e)
+            Result.failure(e)
+        } catch (e: java.net.UnknownHostException) {
+            Log.e(TAG, "Network connection failed during add members", e)
+            Result.failure(e)
+        } catch (e: java.io.IOException) {
+            Log.e(TAG, "IO error during add members", e)
+            Result.failure(e)
+        } catch (e: retrofit2.HttpException) {
+            Log.e(TAG, "HTTP error during add members: ${e.code()}", e)
             Result.failure(e)
         }
     }

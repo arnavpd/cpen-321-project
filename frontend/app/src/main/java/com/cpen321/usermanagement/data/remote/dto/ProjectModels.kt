@@ -30,7 +30,8 @@ data class Project(
 
 data class CreateProjectRequest(
     val name: String,
-    val description: String? = null
+    val description: String? = null,
+    val memberEmails: List<String>? = null
 )
 
 data class UpdateProjectRequest(
@@ -59,4 +60,14 @@ data class ChatMessage(
 
 data class SendMessageRequest(
     val content: String
+)
+
+data class AddMembersByEmailRequest(
+    val memberEmails: List<String>
+)
+
+data class AddMembersResponse(
+    val successfullyAdded: List<String>,
+    val notFound: List<String>,
+    val alreadyMembers: List<String>
 )

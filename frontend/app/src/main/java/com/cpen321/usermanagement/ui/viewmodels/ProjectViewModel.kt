@@ -317,7 +317,7 @@ class ProjectViewModel @Inject constructor(
         }
     }
 
-    fun createProject(name: String, description: String? = null) {
+    fun createProject(name: String, description: String? = null, memberEmails: List<String> = emptyList()) {
         if (name.isBlank()) {
             _uiState.value = _uiState.value.copy(
                 errorMessage = "Project name cannot be empty"
@@ -331,12 +331,12 @@ class ProjectViewModel @Inject constructor(
             return
         }
 
-        Log.d(TAG, "Creating project: $name")
+        Log.d(TAG, "Creating project: $name with ${memberEmails.size} member emails")
         isCreatingProject = true
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isCreating = true, errorMessage = null)
 
-            projectRepository.createProject(name.trim(), description?.trim())
+            projectRepository.createProject(name.trim(), description?.trim(), memberEmails)
                 .onSuccess { project ->
                     Log.d(TAG, "Project created successfully: ${project.id}")
                     // Add project to local state immediately for instant UI update
@@ -491,6 +491,58 @@ class ProjectViewModel @Inject constructor(
                     _uiState.value = _uiState.value.copy(
                         isDeleting = false,
                         errorMessage = error.message ?: "Failed to remove member"
+                    )
+                }
+        }
+    }
+
+    fun addMembersByEmail(projectId: String, emails: List<String>) {
+        if (emails.isEmpty()) {
+            _uiState.value = _uiState.value.copy(
+                errorMessage = "At least one email is required"
+            )
+            return
+        }
+
+        Log.d(TAG, "addMembersByEmail called with projectId: $projectId, emails: ${emails.size}")
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isCreating = true, errorMessage = null)
+
+            projectRepository.addMembersByEmail(projectId, emails)
+                .onSuccess { result ->
+                    Log.d(TAG, "Members added to project: $projectId")
+                    Log.d(TAG, "Successfully added: ${result.successfullyAdded.size}, Not found: ${result.notFound.size}, Already members: ${result.alreadyMembers.size}")
+                    
+                    // Build success message
+                    val messages = mutableListOf<String>()
+                    if (result.successfullyAdded.isNotEmpty()) {
+                        messages.add("Successfully added ${result.successfullyAdded.size} member(s)")
+                    }
+                    if (result.notFound.isNotEmpty()) {
+                        messages.add("${result.notFound.size} email(s) not found: ${result.notFound.joinToString(", ")}")
+                    }
+                    if (result.alreadyMembers.isNotEmpty()) {
+                        messages.add("${result.alreadyMembers.size} email(s) already members: ${result.alreadyMembers.joinToString(", ")}")
+                    }
+                    
+                    val message = messages.joinToString(". ")
+                    
+                    // Refresh project data to show updated member list
+                    refreshSelectedProject()
+                    
+                    _uiState.value = _uiState.value.copy(
+                        isCreating = false,
+                        message = message,
+                        errorMessage = if (result.successfullyAdded.isEmpty() && result.notFound.isNotEmpty()) {
+                            "No members were added. ${result.notFound.joinToString(", ")} not found."
+                        } else null
+                    )
+                }
+                .onFailure { error ->
+                    Log.e(TAG, "Failed to add members", error)
+                    _uiState.value = _uiState.value.copy(
+                        isCreating = false,
+                        errorMessage = error.message ?: "Failed to add members"
                     )
                 }
         }

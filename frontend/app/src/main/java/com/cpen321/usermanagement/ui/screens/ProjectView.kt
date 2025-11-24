@@ -433,6 +433,9 @@ private fun ProjectBody(
                 // Clear the selection and close dropdown when member is removed
                 selectedUserToRemove = ""
                 removeUserExpanded = false
+            } else if (message.contains("added") || message.contains("member")) {
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                projectViewModel.clearMessages()
             }
         }
         uiState.errorMessage?.let { errorMessage ->
@@ -440,6 +443,8 @@ private fun ProjectBody(
                 Toast.makeText(context, "Failed to rename project: $errorMessage", Toast.LENGTH_SHORT).show()
             } else if (errorMessage.contains("remove")) {
                 Toast.makeText(context, "Failed to remove member: $errorMessage", Toast.LENGTH_SHORT).show()
+            } else if (errorMessage.contains("member") || errorMessage.contains("email")) {
+                Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -870,32 +875,128 @@ private fun ProjectBody(
                             .padding(horizontal = spacing.small),
                         verticalArrangement = Arrangement.spacedBy(spacing.medium)
                     ) {
-                        // Add Users card
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(
-                                    color = MaterialTheme.colorScheme.surfaceVariant,
-                                    shape = RoundedCornerShape(8.dp)
-                                )
-                                .padding(spacing.medium)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                        // Add Members card - only show to admins
+                        if (currentProject?.isAdmin == true || currentProject?.isOwner == true) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(
+                                        color = MaterialTheme.colorScheme.surfaceVariant,
+                                        shape = RoundedCornerShape(8.dp)
+                                    )
+                                    .padding(spacing.medium)
                             ) {
-                                Text(
-                                    text = "Add Users",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Text(
-                                    text = currentProject?.invitationCode ?: "",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                                )
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(spacing.small)
+                                ) {
+                                    Text(
+                                        text = "Add Members",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Medium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    
+                                    var addMemberEmail by remember { mutableStateOf("") }
+                                    var emailError by remember { mutableStateOf<String?>(null) }
+                                    val emailPattern = remember { android.util.Patterns.EMAIL_ADDRESS }
+                                    
+                                    fun isValidEmail(email: String): Boolean {
+                                        return emailPattern.matcher(email.trim()).matches()
+                                    }
+                                    
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(spacing.small),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        OutlinedTextField(
+                                            value = addMemberEmail,
+                                            onValueChange = { 
+                                                addMemberEmail = it
+                                                emailError = null
+                                            },
+                                            label = { Text("Enter email address") },
+                                            placeholder = { Text("user@example.com") },
+                                            modifier = Modifier.weight(1f),
+                                            enabled = !uiState.isCreating,
+                                            isError = emailError != null,
+                                            singleLine = true
+                                        )
+                                        Button(
+                                            onClick = {
+                                                val trimmedEmail = addMemberEmail.trim()
+                                                if (trimmedEmail.isEmpty()) {
+                                                    emailError = "Email cannot be empty"
+                                                    return@Button
+                                                }
+                                                if (!isValidEmail(trimmedEmail)) {
+                                                    emailError = "Invalid email format"
+                                                    return@Button
+                                                }
+                                                
+                                                // Clear error and call view model
+                                                emailError = null
+                                                projectViewModel.addMembersByEmail(
+                                                    currentProject?.id ?: "",
+                                                    listOf(trimmedEmail.lowercase())
+                                                )
+                                                // Clear input after calling
+                                                addMemberEmail = ""
+                                            },
+                                            enabled = !uiState.isCreating && addMemberEmail.isNotBlank()
+                                        ) {
+                                            if (uiState.isCreating) {
+                                                CircularProgressIndicator(
+                                                    modifier = Modifier.size(16.dp),
+                                                    strokeWidth = 2.dp
+                                                )
+                                            } else {
+                                                Text("Add Member")
+                                            }
+                                        }
+                                    }
+                                    
+                                    if (emailError != null) {
+                                        Text(
+                                            text = emailError!!,
+                                            color = MaterialTheme.colorScheme.error,
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                    
+                                    // Show invitation code for reference
+                                    Text(
+                                        text = "Invitation Code: ${currentProject?.invitationCode ?: ""}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                    )
+                                }
+                            }
+                        } else {
+                            // Show invitation code only for non-admins
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(
+                                        color = MaterialTheme.colorScheme.surfaceVariant,
+                                        shape = RoundedCornerShape(8.dp)
+                                    )
+                                    .padding(spacing.medium)
+                            ) {
+                                Column {
+                                    Text(
+                                        text = "Invitation Code",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Medium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Text(
+                                        text = currentProject?.invitationCode ?: "",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                        modifier = Modifier.padding(top = spacing.extraSmall)
+                                    )
+                                }
                             }
                         }
 
