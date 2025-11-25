@@ -196,6 +196,7 @@ Additional test commands can be found in section `2.1.3`
 ---
 
 ## 4. Front-end Test Specification
+> These steps assume that `local.properties` and `.env` have been created and the backend is running locally with `npm run dev`.
 **Front-end Test Prerequisites:**
 1. Create a new device (Pixel 7 - Android 13.0 "Tiramisu")
 2. Ensure that a user was previously signed into the app with Google (the tests click the first email after clicking "Sign In With Google"
