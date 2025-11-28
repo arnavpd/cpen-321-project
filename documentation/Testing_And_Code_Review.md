@@ -4,8 +4,8 @@
 
 | **Change Date**   | **Modified Sections** | **Rationale** |
 | ----------------- | --------------------- | ------------- |
-| November 24th, 2025 | 4 Front-end Test Specification | Added steps for how to run tests |
-| November 24th, 2025 | 4.2 Tests | Updated test behavior based on new UI |
+| November 28th, 2025 | 4 Front-end Test Specification | Added steps for how to run tests |
+| November 28th, 2025 | 4.2 Tests | Updated test behavior based on new UI |
 
 ---
 
@@ -199,9 +199,10 @@ Additional test commands can be found in section `2.1.3`
 > These steps assume that `local.properties` and `.env` have been created and the backend is running locally with `npm run dev`.
 **Front-end Test Prerequisites:**
 1. Create a new device (Pixel 7 - Android 13.0 "Tiramisu")
-2. Ensure that a user was previously signed into the app with Google (the tests click the first email after clicking "Sign In With Google"
-3. Ensure that a project named "Test1" was previously created (this project name is utilized in tests)
-4. Ensure that your "Name" under "Manage Profile" is "Test User" (this name is utilized in tests)
+2. Ensure that a Google account is available on the emulator (the tests select the first account shown after clicking "Sign In With Google").
+3. Ensure that a project named "Test1" was previously created or that the test device can create one during the run (the tests assume a project named "Test1" exists).
+4. Ensure that your "Name" under "Manage Profile" is "Test User" (this name is utilized in tests).
+5. Note: The app uses generated invitation codes for project invites (email-invite UI is not implemented). Front-end tests check that a generated invitation code is displayed after project creation.
 
 **How To Run Front-end Tests:**
 1. Open the repository in Android Studio
@@ -220,15 +221,12 @@ Additional test commands can be found in section `2.1.3`
     | ------------------ | ------------------- |
     | 1. The app displays a "Create New Project" button which the user clicks | Check button labelled "Create New Project" is present on screen.<br>Click button labelled "Create New Project". |
     | 2. The app displays a "Create New Project" form | Check "Create New Project" form is present on screen. |
-    | 3a. The user inputs an empty project name | Check button labelled "Create" is disabled. |
+    | 5a. The user inputs an empty project name | Check button labelled "Create" is disabled. |
     | 3. The user inputs a non-empty project name and optional description | Input "ProjectRandomNumber" under "Project Name". |
     | 4. The user clicks the "Create" button | Check button labelled "Create" is enabled.<br>Click "Create" button. |
-    | 5a. The user enters an invalid email address | Check "Invite User" input is present on screen.<br>Input "invalid" under "Invite User".<br>Check button labelled "Add" is present on screen.<br>Click button labelled "Add". |
-    | 6a1. The app displays an error message prompting the user to input a valid email address | Check dialog is opened with text: "Invalid email format". |
-    | 6. The user enters the email addresses of other users they want to invite to the project | Check "Invite User" input is present on screen.<br>Input "test@gmail.com" under "Invite User". |
-    | 7. The user clicks the "Add" button | Check button labelled "Add" is present on screen.<br>Click button labelled "Add". |
-    | 8. The user sees the new project created on the home page | Check project "ProjectRandomNumber" is visible on the screen |
-    | 9. The user clicks on the created project | Click button labelled "ProjectRandomNumber". |
+    | 5. The app displays a generated invitation code for the new project | Check that an invitation code or "Share code" UI element is visible on screen and that the code can be copied or copied via a button. |
+    | 6. The user sees the new project created on the home page | Check project "ProjectRandomNumber" is visible on the screen |
+    | 7. The user clicks on the created project | Click button labelled "ProjectRandomNumber". |
     | 10. The user clicks on the Settings button | Check the button labelled "Settings" is visible<br>Click button labelled "Settings". |
     | 11. The user clicks on the Delete button | Check the button labelled "Delete" is visible<br>Click button labelled "Delete". |
     | 12. The user does not see the project on the home page | Check project "ProjectRandomNumber" is not visible on the screen |
@@ -237,11 +235,11 @@ Additional test commands can be found in section `2.1.3`
     ```
     Task :app:connectedDebugAndroidTest
     Starting 1 tests on Pixel_7(AVD) - 13
-   
+
     Pixel_7(AVD) - 13 Tests 0/1 completed. (0 skipped) (0 failed)
     Pixel_7(AVD) - 13 Tests 1/1 completed. (0 skipped) (0 failed)
     Finished 1 tests on Pixel_7(AVD) - 13
-   
+
     BUILD SUCCESSFUL in 2m 13s
     72 actionable tasks: 1 executed, 71 up-to-date
     ```
